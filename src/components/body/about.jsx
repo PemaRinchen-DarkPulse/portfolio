@@ -1,13 +1,12 @@
 import React from 'react';
-import Profile from "../../assets/images/picture.png";
-
+import Profile from '../../assets/images/picture.png'
 const About = () => {
   return (
     <section id="about" className="about section">
 
       <div className="container section-title" data-aos="fade-up">
         <h2>About</h2>
-        <p>Magnam dolores commodi suscipit. Necessitatibus eius consequatur ex aliquid fuga eum quidem. Sit sint consectetur velit. Quisquam quos quisquam cupiditate. Et nemo qui impedit suscipit alias ea. Quia fugiat sit in iste officiis commodi quidem hic quas.</p>
+        <p>With great dedication and skill, I approach every task with a commitment to excellence and problem-solving. I am driven by a strong sense of responsibility and a focus on creating solutions that are both effective and user-centered. Nothing stands in my way when it comes to delivering quality work and overcoming challenges, making sure every project benefits from a thorough and professional approach.</p>
       </div>
 
       <div className="container" data-aos="fade-up" data-aos-delay="100">
@@ -18,9 +17,7 @@ const About = () => {
           <div className="col-lg-8 content">
             <h2>Full Stack Web Developer.</h2>
             <p className="fst-italic py-3">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-              magna aliqua.
-            </p>
+            A passionate and dedicated Full Stack Web Developer, skilled in creating dynamic, responsive, and user-centered applications. With a strong foundation in both front-end and back-end technologies, they excel in developing seamless experiences tailored to meet client needs. Their commitment to continual learning and exploring the latest in web technologies drives them to deliver innovative and efficient solutions, whether building a website from scratch or enhancing an existing application.            </p>
             <div className="row">
               <div className="col-lg-6">
                 <ul>
@@ -40,9 +37,7 @@ const About = () => {
               </div>
             </div>
             <p className="py-3">
-              Officiis eligendi itaque labore et dolorum mollitia officiis optio vero. Quisquam sunt adipisci omnis et ut. Nulla accusantium dolor incidunt officia tempore. Et eius omnis.
-              Cupiditate ut dicta maxime officiis quidem quia. Sed et consectetur qui quia repellendus itaque neque.
-            </p>
+            I balance my academic commitments with freelance projects, gaining real-world experience while helping clients bring their visions to life. I aim to make meaningful contributions to each project, whether through individual efforts or team collaboration, and I look forward to expanding my skills further as I progress through my studies.            </p>
           </div>
         </div>
       </div>

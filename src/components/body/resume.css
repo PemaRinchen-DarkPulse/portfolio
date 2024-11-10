@@ -1,0 +1,100 @@
+/* Resume Section */
+.resume {
+    padding: 60px 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #f9f9f9;
+  }
+  
+  .section-title {
+    margin-bottom: 40px;
+  }
+  
+  .section-title h2 {
+    font-size: 32px;
+    font-weight: 700;
+    text-transform: uppercase;
+    position: relative;
+    color: #333;
+    padding-bottom: 10px;
+  }
+  
+  .section-title p {
+    color: #777;
+    font-size: 16px;
+  }
+  
+  .resume h3.resume-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #444;
+  }
+  
+  .resume-item {
+    margin-bottom: 30px;
+  }
+  
+  .resume-item h4 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 10px;
+  }
+  
+  .resume-item h5 {
+    font-size: 16px;
+    color: #777;
+    font-weight: 500;
+  }
+  
+  .resume-item em {
+    font-style: normal;
+    color: #888;
+  }
+  
+  .resume-item ul {
+    padding-left: 20px;
+    list-style: none;
+  }
+  
+  .resume-item ul li {
+    position: relative;
+    padding-left: 20px;
+    margin-bottom: 10px;
+    line-height: 1.6;
+  }
+  
+  .resume-item ul li:before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: #007bff;
+    font-size: 18px;
+  }
+  
+  .resume-item p {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.6;
+  }
+  
+  /* Timeline design for both sides */
+  .resume-item {
+    position: relative;
+    padding-left: 30px;
+    border-left: 2px solid #007bff;
+  }
+  
+  .resume-item:before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 0;
+    width: 12px;
+    height: 12px;
+    background-color: #fff;
+    border: 2px solid #007bff;
+    border-radius: 50%;
+  }
+  

@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import SideBar from './components/sideBar/sideBar'
 import Contact from './components/body/contact'
-import Home from './components/body/home'
+import Hero from './components/body/hero'
 import About from './components/body/about'
+import Projects from './components/body/projects'
+import Resume from './components/body/resume'
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
     <>
@@ -13,8 +14,10 @@ function App() {
           <SideBar/>
         </div>
         <div className="col-10">
-        <Home/>
+        <Hero/>
         <About/>
+        <Resume/>
+        <Projects/>
         <Contact/>
         </div>
       </div>
