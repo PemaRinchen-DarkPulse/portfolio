@@ -39,19 +39,6 @@ const Contact = () => {
                                 <p className="text-muted">emailus@gmail.com</p>
                             </div>
                         </div>
-
-                        <div className="mt-4">
-                            <iframe
-                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3021.869518160224!2d-74.0060156847474!3d40.71277597933159!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x7dd1fbb77e4f0a7f!2zTllDLU5ZMTIzIEFkYW0gU3QsIE5ldyBZb3Jr!5e0!3m2!1sen!2sus!4v1611787284707!5m2!1sen!2sus"
-                                width="100%"
-                                height="250"
-                                frameBorder="0"
-                                style={{ border: 0 }}
-                                allowFullScreen=""
-                                aria-hidden="false"
-                                tabIndex="0">
-                            </iframe>
-                        </div>
                     </div>
                 </div>
 

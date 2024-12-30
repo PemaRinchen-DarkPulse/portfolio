@@ -1,28 +1,33 @@
-import { useState } from 'react'
-import SideBar from './components/sideBar/sideBar'
-import Contact from './components/body/contact'
-import Hero from './components/body/hero'
-import About from './components/body/about'
-import Projects from './components/body/projects'
-import Resume from './components/body/resume'
-function App() {
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Home from './components/body/home/Home';
+import SideBar from './components/sideBar/sideBar';
+import About from './components/body/about/about';
+import Resume from './components/body/resume/Resume';
+import Projects from './components/body/project/ProjectList';
+import Contact from './components/body/contact/Contact';
+import BubbleChat from './components/body/bubbleChat/BubbleChat';
+import './app.css';
 
+function App() {
   return (
-    <>
-      <div className="row">
+    <Router>
+      <div className="row" style={{ background: 'linear-gradient(135deg, #1E2A47, #4E5B79)', minHeight: '100vh' }}>
         <div className="col-2">
-          <SideBar/>
+          <SideBar />
         </div>
-        <div className="col-10">
-        <Hero/>
-        <About/>
-        <Resume/>
-        <Projects/>
-        <Contact/>
+        <div className="col-10 my-3 me-5" style={{ marginLeft: "30px", backgroundColor: '#f4f4f9', borderRadius: '15px', boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)' }}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/resume" element={<Resume />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/contact" element={<Contact />} />
+          </Routes>
         </div>
       </div>
-    </>
-  )
+      <BubbleChat />
+    </Router>
+  );
 }
 
-export default App
+export default App;
