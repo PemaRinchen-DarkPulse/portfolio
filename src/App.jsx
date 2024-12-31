@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Home from './components/body/home/Home';
-import SideBar from './components/sideBar/SideBar';
-import About from './components/body/about/About';
+import SideBar from './components/sideBar/SideBar'
+import About from './components/body/about/About'
 import Resume from './components/body/resume/Resume';
 import Projects from './components/body/project/ProjectList';
 import Contact from './components/body/contact/Contact';
