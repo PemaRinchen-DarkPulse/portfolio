@@ -3,7 +3,7 @@ import ProjectCard from './ProjectCard';
 
 const ProjectList = () => {
   return (
-    <div className="container my-4" style={{marginRight:'60px'}}>
+    <div className="container my-4">
       <h3 className="ms-2 mb-4">My Projects</h3>
       <div className="row">
         <div className="col-md-6">

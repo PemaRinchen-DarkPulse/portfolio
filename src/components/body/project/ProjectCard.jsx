@@ -2,7 +2,7 @@ import React from "react";
 
 const ProjectCard = () => {
   return (
-      <div class="card">
+      <div class="card rounded-3 shadow">
       <div class="card-body">
         <h5 class="card-title mb-3">Card title</h5>
         <p class="card-text text-muted">
