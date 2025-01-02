@@ -4,12 +4,10 @@ import { FaInstagram, FaFacebook, FaLinkedin, FaHome, FaUser, FaFileAlt, FaImage
 
 const SideBar = () => {
     const location = useLocation();
-
     const isActive = (path) => location.pathname === path;
 
     return (
         <div className="position-fixed text-white d-flex flex-column justify-content-between" style={{ backgroundColor: "#040b14", minHeight: "100vh" }}>
-            {/* Top Section */}
             <div>
                 {/* Profile Section */}
                 <div className="rounded-circle mt-4 align-self-center" style={{ height: "120px", width: "120px", backgroundColor: "white", overflow: "hidden" }}>
