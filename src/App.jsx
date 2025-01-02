@@ -6,7 +6,7 @@ import Projects from './components/body/project/ProjectList';
 import Contact from './components/body/contact/Contact';
 import BubbleChat from './components/body/bubbleChat/BubbleChat';
 import './app.css';
-import SideBar from './components/sidebar/SideBar';
+import SideBar from './components/sideBar/SideBar';
 
 
 function App() {
