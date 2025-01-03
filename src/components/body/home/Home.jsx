@@ -34,17 +34,20 @@ const Home = () => {
     <div className="container my-5">
       {/* Main section with image and title */}
       <div className="row align-items-center mb-5">
-        <div className="col-6 ms-5 me-3" style={{height:"300px",width:'auto'}}>
-        <img
-          src={Image}
-          alt="Profile"
-          className="col-6 rounded-circle border shadow"
-          style={{
-            height: "100%",
-            width: "100%",
-            objectFit: "cover",
-          }}
-        />
+        <div
+          className="col-6 ms-5 me-3"
+          style={{ height: "300px", width: "auto" }}
+        >
+          <img
+            src={Image}
+            alt="Profile"
+            className="col-6 rounded-circle border shadow"
+            style={{
+              height: "100%",
+              width: "100%",
+              objectFit: "cover",
+            }}
+          />
         </div>
         <div className="col-6">
           <h1 className="fw-bold text-dark">Pema Rinchen</h1>
@@ -53,14 +56,15 @@ const Home = () => {
           </h3>
           <div>
             <a
-              href="/resume.pdf"
+              href="https://drive.google.com/uc?export=download&id=1P_C1hugvfsPtz_zucAI057pK3ruztsLh"
               className="btn btn-primary me-3 px-4 py-2 shadow-sm"
-              download
+              target="_self"
+              rel="noopener noreferrer"
             >
               Download Resume
             </a>
             <a
-              href="#contact"
+              href="/contact"
               className="btn btn-outline-primary px-4 py-2 shadow-sm"
             >
               Get In Touch

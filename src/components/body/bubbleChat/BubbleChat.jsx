@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FaRegCommentDots } from 'react-icons/fa';
 import './BubbleChat.css';
 
@@ -6,9 +6,26 @@ function BubbleChat() {
   const [isOpen, setIsOpen] = useState(false); // State to toggle chat window
   const [userMessage, setUserMessage] = useState(''); // User's input
   const [chatHistory, setChatHistory] = useState([]); // Store chat messages
+  const [greetingSent, setGreetingSent] = useState(false); // Track if greeting is sent
+  const chatEndRef = useRef(null); // Reference to scroll to the end of the chat
+
+  // Scroll to the bottom whenever a new message is added
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [chatHistory]); // Trigger when chat history changes
 
   // Toggle chat window
   const toggleChat = () => {
+    if (!isOpen && !greetingSent) {
+      // Add default greeting message when opening the chat for the first time
+      setChatHistory((prev) => [
+        ...prev,
+        { sender: 'AI', message: 'Hi, I am Virtual Pema. How can I help you?' },
+      ]);
+      setGreetingSent(true); // Mark greeting as sent
+    }
     setIsOpen(!isOpen);
   };
 
@@ -18,7 +35,7 @@ function BubbleChat() {
       // Add user's message and simulated AI response to chat history
       setChatHistory((prev) => [
         ...prev,
-        { sender: 'You', message: userMessage }, // Display "You" instead of "User"
+        { sender: 'You', message: userMessage },
         { sender: 'AI', message: "I'm here to help! Ask me anything about you." },
       ]);
       setUserMessage(''); // Clear input
@@ -52,6 +69,8 @@ function BubbleChat() {
                 <strong>{chat.sender}:</strong> {chat.message}
               </div>
             ))}
+            {/* Scroll target */}
+            <div ref={chatEndRef} />
           </div>
           <div className="chat-footer">
             <input
