@@ -44,7 +44,6 @@ const About = () => {
             When I'm not coding, I enjoy exploring new technologies, reading, and contributing to open-source projects.
           </p>
         </div>
-        {/* Hobby Section */}
         <div className="mt-5 d-flex">
           <div className="mx-3">
             <FaMusic size={30} style={{ color: '#6c757d' }} />

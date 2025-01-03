@@ -5,10 +5,7 @@ import { FaInstagram, FaFacebook, FaLinkedin, FaHome, FaUser, FaFileAlt, FaImage
 const SideBar = () => {
     const location = useLocation();
     const [hovered, setHovered] = useState(null);
-
-    // Helper to determine if a link is active
     const isActive = (path) => location.pathname === path;
-
     return (
         <div
             className="position-fixed text-white d-flex flex-column justify-content-between"
