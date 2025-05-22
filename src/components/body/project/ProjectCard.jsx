@@ -1,130 +1,43 @@
-import React from "react";
+import React from 'react';
+import { FaCalendarAlt, FaGithub, FaExternalLinkAlt, FaCode } from 'react-icons/fa';
+import './Project.css';
 
-const ProjectCard = () => {
+const ProjectCard = ({ project }) => {
+  const { title, description, image, date, demoLink, githubLink, tech, category } = project;
+
   return (
-    <div
-      style={{
-        backgroundColor: "#ffffff",
-        borderRadius: "12px",
-        boxShadow: "0 6px 15px rgba(0, 0, 0, 0.1)",
-        overflow: "hidden",
-        cursor: "pointer",
-        transition: "transform 0.3s, box-shadow 0.3s",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = "translateY(-8px)";
-        e.currentTarget.style.boxShadow = "0 12px 25px rgba(0, 0, 0, 0.2)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = "translateY(0)";
-        e.currentTarget.style.boxShadow = "0 6px 15px rgba(0, 0, 0, 0.1)";
-      }}
-    >
-      <div style={{ padding: "24px" }}>
-        {/* Project Title */}
-        <h5 style={{ fontWeight: "bold", color: "#333", marginBottom: "16px" }}>
-          Project Title
-        </h5>
-
-        {/* Project Description */}
-        <p style={{ fontSize: "1rem", color: "#666", marginBottom: "24px" }}>
-          This is a brief description of the project. It highlights the main
-          features and functionality of the application.
-        </p>
-
-        {/* Technologies Section */}
-        <div style={{ marginBottom: "24px" }}>
-          <h6 style={{ fontWeight: "bold", color: "#444", marginBottom: "8px" }}>
-            Technologies Used:
-          </h6>
-          <div>
-            <span
-              style={{
-                backgroundColor: "#007bff",
-                color: "#fff",
-                padding: "6px 12px",
-                borderRadius: "16px",
-                fontSize: "0.9rem",
-                marginRight: "8px",
-              }}
-            >
-              React
-            </span>
-            <span
-              style={{
-                backgroundColor: "#007bff",
-                color: "#fff",
-                padding: "6px 12px",
-                borderRadius: "16px",
-                fontSize: "0.9rem",
-                marginRight: "8px",
-              }}
-            >
-              Node.js
-            </span>
-            <span
-              style={{
-                backgroundColor: "#007bff",
-                color: "#fff",
-                padding: "6px 12px",
-                borderRadius: "16px",
-                fontSize: "0.9rem",
-              }}
-            >
-              MongoDB
-            </span>
-          </div>
+    <div className="project-card">
+      <div className="project-image">
+        <img src={image} alt={title} loading="lazy" />
+        {category && <div className="project-tech-tag">{category}</div>}
+      </div>
+      <div className="project-content">
+        <h3 className="project-title">{title}</h3>
+        <div className="project-date">
+          <FaCalendarAlt /> <span>{date}</span>
         </div>
-
-        {/* Buttons Section */}
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <a
-            href="#"
-            style={{
-              display: "inline-block",
-              textDecoration: "none",
-              color: "#007bff",
-              fontWeight: "bold",
-              border: "2px solid #007bff",
-              borderRadius: "8px",
-              padding: "8px 16px",
-              textAlign: "center",
-              transition: "background-color 0.3s, color 0.3s",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "#007bff";
-              e.currentTarget.style.color = "#fff";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "transparent";
-              e.currentTarget.style.color = "#007bff";
-            }}
-          >
-            GitHub
-          </a>
-          <a
-            href="#"
-            style={{
-              display: "inline-block",
-              textDecoration: "none",
-              background: "linear-gradient(90deg, #007bff, #0056b3)",
-              color: "#fff",
-              fontWeight: "bold",
-              border: "none",
-              borderRadius: "8px",
-              padding: "8px 16px",
-              textAlign: "center",
-              transition: "opacity 0.3s",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.opacity = "0.9";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.opacity = "1";
-            }}
-          >
-            Live Demo
-          </a>
+        <p className="project-description">{description}</p>
+        
+        <div className="project-tech-stack">
+          {tech && tech.map((item, index) => (
+            <span key={index} className="tech-pill">
+              <FaCode style={{ fontSize: '0.7rem', marginRight: '5px' }} />
+              {item}
+            </span>
+          ))}
+        </div>
+        
+        <div className="project-footer">
+          {githubLink && (
+            <a href={githubLink} target="_blank" rel="noopener noreferrer" className="project-link">
+              <FaGithub style={{ marginRight: '5px' }} /> Code
+            </a>
+          )}
+          {demoLink && (
+            <a href={demoLink} target="_blank" rel="noopener noreferrer" className="project-link">
+              <FaExternalLinkAlt style={{ marginRight: '5px' }} /> Demo
+            </a>
+          )}
         </div>
       </div>
     </div>

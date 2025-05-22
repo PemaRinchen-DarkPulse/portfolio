@@ -29,9 +29,8 @@ const Home = () => {
 
     return () => clearInterval(typeInterval);
   }, [index]);
-
   return (
-    <div className="container my-5">
+    <div className="container my-5 d-flex flex-column justify-content-center" style={{ minHeight: "80vh" }}>
       {/* Main section with image and title */}
       <div className="row align-items-center mb-5">
         <div

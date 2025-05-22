@@ -164,12 +164,11 @@ const Contact = () => {
       {/* Map Section */}
       <div className="container mt-3">
         <h4 className="mb-3">Location</h4>
-        <div className="rounded-3 shadow-sm">
-          <iframe
+        <div className="rounded-3 shadow-sm">          <iframe
             className="rounded-3"
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3783.5158362493565!2d73.7252788!3d18.5413032!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2bc3e3d28683b%3A0x64a3e9ef22f676a0!2sSymbiosis%20Institute%20of%20Technology%20%7C%20SIT%20Pune!5e0!3m2!1sen!2sin!4v1690136815452!5m2!1sen!2sin"
             width="100%"
-            height="600"
+            height="800"
             style={{ border: "0" }}
             allowFullScreen=""
             loading="lazy"

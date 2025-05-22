@@ -10,6 +10,8 @@ import './app.css';
 import SideBar from './components/sideBar/SideBar';
 import { useState, useEffect } from 'react';
 import SideBarSmallScreen from './components/sideBar/SideBarSmallScreen';
+import Portfolio from './components/body/portfolio/Portfolio';
+import Details from './components/body/portfolio/Details';
 
 function App() {
   const [isSmallScreen, setIsSmallScreen] = useState(false);
@@ -53,13 +55,14 @@ function App() {
         >
           {isSmallScreen && (
             <SideBarSmallScreen/>
-          )}
-          <Routes>
+          )}          <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/resume" element={<Resume />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/portfolio" element={<Portfolio/>} />
+            <Route path="/portfolio/:id" element={<Details/>} />
           </Routes>
         </div>
       </div>

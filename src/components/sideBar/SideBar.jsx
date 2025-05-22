@@ -6,29 +6,32 @@ const SideBar = () => {
     const location = useLocation();
     const [hovered, setHovered] = useState(null);
     const isActive = (path) => location.pathname === path;
-    return (
-        <div
+    return (        <div
             className="position-fixed text-white d-flex flex-column justify-content-between"
-            style={{ backgroundColor: '#040b14', minHeight: '100vh' }}
+            style={{ backgroundColor: '#040b14', minHeight: '100vh', boxShadow: '0 0 15px rgba(0, 0, 0, 0.3)' }}
         >
             <div>
-                {/* Profile Section */}
-                <div
-                    className="rounded-circle mt-4 align-self-center"
-                    style={{ height: '120px', width: '120px', backgroundColor: 'white', overflow: 'hidden' }}
+                {/* Profile Section */}                <div
+                    className="rounded-circle mt-4 mx-auto d-flex align-items-center justify-content-center"
+                    style={{ 
+                        height: '120px', 
+                        width: '120px', 
+                        backgroundColor: 'white', 
+                        overflow: 'hidden',
+                        border: '3px solid #2c2f3f',
+                        boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)'
+                    }}
                 >
                     <img src="path_to_image.jpg" alt="Profile" className="img-fluid w-100 h-100 object-fit-cover" />
-                </div>
-                <div className="text-center mt-3">
-                    <h4>Pema Rinchen</h4>
+                </div>                <div className="text-center mt-3">
+                    <h4 style={{ fontWeight: '600', letterSpacing: '1px' }}>Pema Rinchen</h4>
                     <ul className="d-flex justify-content-center mt-3" style={{ listStyle: 'none', padding: 0 }}>
                         {[
-                            { icon: <FaInstagram size={20} />, link: '#' },
-                            { icon: <FaFacebook size={20} />, link: '#' },
+                            { icon: <FaInstagram size={20} />, link: 'https://www.instagram.com/blazepknight/' },
+                            { icon: <FaFacebook size={20} />, link: 'https://www.facebook.com/BlazePknight'  },
                             { icon: <FaLinkedin size={20} />, link: '#' },
                         ].map((social, index) => (
-                            <li key={index} className="mx-2">
-                                <a
+                            <li key={index} className="mx-2">                                <a
                                     href={social.link}
                                     className="rounded-circle d-flex align-items-center justify-content-center"
                                     style={{
@@ -38,6 +41,8 @@ const SideBar = () => {
                                         color: 'white',
                                         border: '1px solid white',
                                         backgroundColor: hovered === index ? '#1a2b3a' : 'transparent',
+                                        transition: 'all 0.3s ease',
+                                        transform: hovered === index ? 'translateY(-3px)' : 'translateY(0)',
                                     }}
                                     onMouseEnter={() => setHovered(index)}
                                     onMouseLeave={() => setHovered(null)}
@@ -49,9 +54,8 @@ const SideBar = () => {
                     </ul>
                 </div>
 
-                {/* Navigation Section */}
-                <div className="mt-5">
-                    <ul className="navbar-nav ms-3">
+                {/* Navigation Section */}                <div className="mt-5">
+                    <ul className="navbar-nav ms-3" style={{ padding: '0 5px' }}>
                         {[
                             { icon: <FaHome />, label: 'Home', path: '/' },
                             { icon: <FaUser />, label: 'About', path: '/about' },
@@ -60,8 +64,7 @@ const SideBar = () => {
                             { icon: <FaServer />, label: 'Project', path: '/projects' },
                             { icon: <FaEnvelope />, label: 'Contact', path: '/contact' },
                         ].map((item, index) => (
-                            <li key={index} className="nav-item d-flex align-items-center mb-2">
-                                <Link
+                            <li key={index} className="nav-item d-flex align-items-center mb-2">                                <Link
                                     to={item.path}
                                     className="d-flex align-items-center text-decoration-none w-100"
                                     style={{
@@ -70,21 +73,20 @@ const SideBar = () => {
                                         backgroundColor: isActive(item.path) ? '#1a2b3a' : 'transparent',
                                         color: isActive(item.path) ? 'white' : '#b0b0b0',
                                         cursor: 'pointer',
+                                        transition: 'all 0.3s ease',
+                                        boxShadow: isActive(item.path) ? '0 0 8px rgba(26, 43, 58, 0.5)' : 'none',
                                     }}
-                                >
-                                    <div className="me-3" style={{ color: 'inherit' }}>
+                                >                                    <div className="me-3" style={{ color: 'inherit' }}>
                                         {item.icon}
                                     </div>
-                                    <span style={{ color: 'inherit' }}>{item.label}</span>
+                                    <span style={{ color: 'inherit', fontWeight: isActive(item.path) ? '500' : '400', letterSpacing: '0.5px' }}>{item.label}</span>
                                 </Link>
                             </li>
                         ))}
                     </ul>
                 </div>
-            </div>
-
-            <div className="text-center py-3" style={{ fontSize: '0.9rem' }}>
-                <hr />
+            </div>            <div className="text-center py-3" style={{ fontSize: '0.9rem' }}>
+                <hr style={{ borderColor: '#2c2f3f', opacity: '0.5', margin: '0 20px 15px' }} />
                 © 2025 Pema Rinchen
             </div>
         </div>
