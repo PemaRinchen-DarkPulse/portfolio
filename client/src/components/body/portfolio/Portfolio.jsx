@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import './Portfolio.css';
 import PortfolioUploadForm from './PortfolioUploadForm';
+import { AuthContext } from '../../auth/AuthContext';
 
 // Import full portfolio data with content
 import { samplePortfolioItems, addPortfolioItem } from './Details';
@@ -40,10 +41,10 @@ const getContentPreview = (content, maxLength = 120) => {
 
 const Portfolio = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [portfolioItems, setPortfolioItems] = useState([]);
-  const [filteredItems, setFilteredItems] = useState([]);
+  const [portfolioItems, setPortfolioItems] = useState([]);  const [filteredItems, setFilteredItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showUploadForm, setShowUploadForm] = useState(false);
+  const { isAuthenticated } = useContext(AuthContext);
   
   // Process portfolio items to include content previews
   useEffect(() => {
@@ -99,15 +100,16 @@ const Portfolio = () => {
       <div className="portfolio-header">
         <h1>My Creative Works</h1>
         <p className="subtitle">A showcase of my projects, writings, and artistic expressions</p>
-        
-        {/* Add Portfolio Button - Moved to the top */}
-        <button 
-          className="portfolio-upload-button-top" 
-          onClick={() => setShowUploadForm(true)}
-          aria-label="Add new portfolio item"
-        >
-          Add New Portfolio Item
-        </button>
+          {/* Add Portfolio Button - Only shown to authenticated users */}
+        {isAuthenticated && (
+          <button 
+            className="portfolio-upload-button-top" 
+            onClick={() => setShowUploadForm(true)}
+            aria-label="Add new portfolio item"
+          >
+            Add New Portfolio Item
+          </button>
+        )}
       </div>
       
       <div className="portfolio-categories">

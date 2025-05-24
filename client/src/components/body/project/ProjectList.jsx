@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { FaSearch, FaProjectDiagram, FaCode, FaPlus } from 'react-icons/fa';
 import ProjectCard from './ProjectCard';
 import ProjectUploadForm from './ProjectUploadForm';
+import { AuthContext } from '../../auth/AuthContext';
 import './Project.css';
 
 // Sample projects data - this can be replaced with an API call in the future
@@ -82,6 +83,7 @@ const ProjectList = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [animateCards, setAnimateCards] = useState(false);
   const [showUploadForm, setShowUploadForm] = useState(false);
+  const { isAuthenticated } = useContext(AuthContext);
 
   // Simulate fetching data
   useEffect(() => {
@@ -143,15 +145,16 @@ const ProjectList = () => {
           My Projects
         </h1>
         <p className="subtitle">A showcase of my technical projects and coding adventures</p>
-        
-        {/* Add Project Button */}
-        <button 
-          className="add-project-btn-top" 
-          onClick={() => setShowUploadForm(true)}
-          aria-label="Add new project"
-        >
-          <FaPlus style={{ marginRight: '8px' }} /> Add New Project
-        </button>
+          {/* Add Project Button - Only shown to authenticated users */}
+        {isAuthenticated && (
+          <button 
+            className="add-project-btn-top" 
+            onClick={() => setShowUploadForm(true)}
+            aria-label="Add new project"
+          >
+            <FaPlus style={{ marginRight: '8px' }} /> Add New Project
+          </button>
+        )}
       </div>
       
       <div className="project-search">
