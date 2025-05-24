@@ -22,7 +22,7 @@ const About = () => {
           <div className="hero-line"></div>
         </div>
       </div>      <div className="about-content">
-        <div className="about-image-container">
+        <div className="about-image-container rounded-5">
           <img src={profileImage} alt="Profile" className="about-image" />
         </div>
 

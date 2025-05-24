@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FaRegCommentDots } from 'react-icons/fa';
+import { sendMessage } from './chatService';
 import './BubbleChat.css';
 
 function BubbleChat() {
@@ -7,6 +8,7 @@ function BubbleChat() {
   const [userMessage, setUserMessage] = useState(''); // User's input
   const [chatHistory, setChatHistory] = useState([]); // Store chat messages
   const [greetingSent, setGreetingSent] = useState(false); // Track if greeting is sent
+  const [isLoading, setIsLoading] = useState(false); // Loading state for API calls
   const chatEndRef = useRef(null); // Reference to scroll to the end of the chat
 
   // Scroll to the bottom whenever a new message is added
@@ -30,15 +32,34 @@ function BubbleChat() {
   };
 
   // Handle message submission
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (userMessage.trim()) {
-      // Add user's message and simulated AI response to chat history
-      setChatHistory((prev) => [
-        ...prev,
-        { sender: 'You', message: userMessage },
-        { sender: 'AI', message: "I'm here to help! Ask me anything about you." },
-      ]);
+      // Add user's message to chat history
+      const updatedHistory = [
+        ...chatHistory,
+        { sender: 'You', message: userMessage }
+      ];
+      
+      setChatHistory(updatedHistory);
       setUserMessage(''); // Clear input
+      setIsLoading(true); // Start loading state
+      
+      try {
+        // Get AI response from our chat service
+        const aiResponse = await sendMessage(userMessage, chatHistory);
+        
+        // Add AI response to chat history
+        setChatHistory(prev => [...prev, { sender: 'AI', message: aiResponse }]);
+      } catch (error) {
+        console.error('Error getting response:', error);
+        // Add error message to chat history
+        setChatHistory(prev => [...prev, { 
+          sender: 'AI', 
+          message: "I'm having trouble connecting right now. Please try again later." 
+        }]);
+      } finally {
+        setIsLoading(false); // End loading state
+      }
     }
   };
 
@@ -69,6 +90,15 @@ function BubbleChat() {
                 <strong>{chat.sender}:</strong> {chat.message}
               </div>
             ))}
+            {isLoading && (
+              <div className="chat-message ai-message loading">
+                <div className="typing-indicator">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            )}
             {/* Scroll target */}
             <div ref={chatEndRef} />
           </div>
@@ -79,8 +109,11 @@ function BubbleChat() {
               onChange={(e) => setUserMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Type your message..."
+              disabled={isLoading}
             />
-            <button onClick={handleSendMessage}>Send</button>
+            <button onClick={handleSendMessage} disabled={isLoading}>
+              {isLoading ? '...' : 'Send'}
+            </button>
           </div>
         </div>
       )}
