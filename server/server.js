@@ -9,9 +9,23 @@ dotenv.config();
 // Initialize Express app
 const app = express();
 
+// CORS configuration
+const corsOptions = {
+  origin: [
+    'https://demofrontend-blond.vercel.app',
+    'https://demofrontend-k1r03jdw1-pema-rinchens-projects-fb20da05.vercel.app',
+    'http://localhost:5173',
+    'http://localhost:3000'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'],
+  optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+};
+
 // Middleware
 app.use(express.json({ extended: false })); // Parse JSON request body
-app.use(cors()); // Enable CORS for all requests
+app.use(cors(corsOptions)); // Enable CORS with configuration
 
 // Connect to MongoDB
 mongoose
