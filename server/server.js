@@ -12,10 +12,9 @@ const app = express();
 // CORS configuration
 const corsOptions = {
   origin: [
-    'https://demofrontend-blond.vercel.app',
-    'https://demofrontend-k1r03jdw1-pema-rinchens-projects-fb20da05.vercel.app',
+    'https://portfoliofrontend-six.vercel.app',
+    'https://portfoliofrontend-i08e3zbqg-pema-rinchens-projects-fb20da05.vercel.app',
     'http://localhost:5173',
-    'http://localhost:3000'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
