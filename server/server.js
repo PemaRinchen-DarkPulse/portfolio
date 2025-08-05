@@ -2,9 +2,10 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+const path = require('path');
 
-// Load environment variables
-dotenv.config();
+// Load environment variables from the correct path
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 // Initialize Express app
 const app = express();
@@ -15,6 +16,7 @@ const corsOptions = {
     'https://portfoliofrontend-six.vercel.app',
     'https://portfoliofrontend-i08e3zbqg-pema-rinchens-projects-fb20da05.vercel.app',
     'http://localhost:5173',
+    'http://localhost:5174',
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -36,9 +38,24 @@ mongoose
   });
 
 // Define Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/portfolios', require('./routes/portfolio'));
-app.use('/api/projects', require('./routes/project'));
+console.log('Loading routes...');
+try {
+  // Load contact routes FIRST
+  console.log('Loading contact routes...');
+  const contactRoutes = require('./routes/contact');
+  app.use('/api/messages', contactRoutes);
+  console.log('Contact routes loaded at /api/messages');
+
+  app.use('/api/auth', require('./routes/auth'));
+  console.log('Auth routes loaded');
+  app.use('/api/portfolios', require('./routes/portfolio'));
+  console.log('Portfolio routes loaded');
+  app.use('/api/projects', require('./routes/project'));
+  console.log('Project routes loaded');
+} catch (error) {
+  console.error('Error loading routes:', error);
+}
+console.log('All routes loaded successfully');
 
 // Health check route
 app.get('/', (req, res) => {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   FaMapMarkerAlt,
   FaPhoneAlt,
@@ -9,12 +9,66 @@ import {
   FaLinkedinIn,
   FaGithub,
 } from "react-icons/fa";
+import SharedHero from '../../shared/SharedHero';
+import { sendContactMessage } from '../../../services/api';
 
 const Contact = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState({ type: '', message: '' });
+
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [id]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus({ type: '', message: '' });
+
+    try {
+      // Validate form data
+      if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+        throw new Error('Please fill in all fields');
+      }
+
+      await sendContactMessage(formData);
+      
+      setSubmitStatus({
+        type: 'success',
+        message: 'Message sent successfully! I\'ll get back to you soon.'
+      });
+      
+      // Reset form
+      setFormData({ name: '', email: '', message: '' });
+    } catch (error) {
+      setSubmitStatus({
+        type: 'error',
+        message: error.message || 'Failed to send message. Please try again.'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
-    <div className="container my-4">
-      <h3 className="ms-2">Contact Me</h3>
-      <div className="row">
+    <div className="contact-container">
+      <SharedHero 
+        title="Get In <span class='highlight'>Touch</span>"
+        subtitle="Let's connect and discuss opportunities"
+        description="I'm always interested in hearing about new projects and opportunities. Whether you have a question or just want to say hi, feel free to reach out!"
+      />
+      
+      <div className="contact-content">
+        <div className="container my-4">
+          <div className="row">
         <div className="col-6">
           <div
             className="m-3 bg-dark text-white rounded-3 p-3 shadow-sm d-flex flex-column justify-content-around"
@@ -60,11 +114,11 @@ const Contact = () => {
               <div>
                 <h6 className="mb-1">EMAIL</h6>
                 <a
-                  href="mailto:pemarinchen12.31.2002@gmail.com"
+                  href="mailto:pemarinchen675@gmail.com"
                   className="text-white"
                   style={{ textDecoration: "none" }}
                 >
-                  pemarinchen12.31.2002@gmail.com
+                  pemarinchen675@gmail.com
                 </a>
               </div>
             </div>
@@ -119,7 +173,20 @@ const Contact = () => {
             className="m-3 bg-secondary rounded-3 px-3 py-2 shadow-sm"
           >
             <h3 className="">Send a Message</h3>
-            <form>
+            
+            {/* Status Message */}
+            {submitStatus.message && (
+              <div className={`alert ${submitStatus.type === 'success' ? 'alert-success' : 'alert-danger'} alert-dismissible fade show`} role="alert">
+                {submitStatus.message}
+                <button 
+                  type="button" 
+                  className="btn-close" 
+                  onClick={() => setSubmitStatus({ type: '', message: '' })}
+                ></button>
+              </div>
+            )}
+            
+            <form onSubmit={handleSubmit}>
               <div className="mb-3">
                 <label htmlFor="name" className="form-label">
                   Name
@@ -129,6 +196,9 @@ const Contact = () => {
                   className="form-control"
                   id="name"
                   placeholder="John Doe"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  required
                 />
               </div>
               <div className="mb-3">
@@ -140,6 +210,9 @@ const Contact = () => {
                   className="form-control"
                   id="email"
                   placeholder="johndoe@example.com"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
                 />
               </div>
               <div className="mb-3">
@@ -151,10 +224,24 @@ const Contact = () => {
                   id="message"
                   rows="3"
                   placeholder="Type your message..."
+                  value={formData.message}
+                  onChange={handleInputChange}
+                  required
                 ></textarea>
               </div>
-              <button type="submit" className="btn btn-primary mb-2">
-                Submit
+              <button 
+                type="submit" 
+                className="btn btn-primary mb-2"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Sending...
+                  </>
+                ) : (
+                  'Send Message'
+                )}
               </button>
             </form>
           </div>
@@ -176,6 +263,8 @@ const Contact = () => {
             title="Google Map"
           ></iframe>
         </div>
+        </div>
+      </div>
       </div>
     </div>
   );

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import './Portfolio.css';
 
 // Sample portfolio data - we'll make this a dynamic array that can be updated
 export let samplePortfolioItems = [

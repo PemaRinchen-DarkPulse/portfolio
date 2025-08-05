@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { FaUpload, FaCode, FaTimes } from 'react-icons/fa';
-import './Project.css';
 
 const ProjectUploadForm = ({ onClose, onSubmit }) => {  const [formData, setFormData] = useState({
     title: '',

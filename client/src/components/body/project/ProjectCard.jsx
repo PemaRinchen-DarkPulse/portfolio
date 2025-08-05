@@ -1,6 +1,5 @@
 import React from 'react';
 import { FaCalendarAlt, FaGithub, FaExternalLinkAlt, FaCode } from 'react-icons/fa';
-import './Project.css';
 
 const ProjectCard = ({ project }) => {
   const { title, description, image, date, demoLink, githubLink, tech, category } = project;

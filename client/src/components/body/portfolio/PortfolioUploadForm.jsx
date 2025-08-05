@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { FaUpload, FaParagraph, FaTimes } from 'react-icons/fa';
-import './Portfolio.css';
 
 const PortfolioUploadForm = ({ onClose, onSubmit }) => {
   const [formData, setFormData] = useState({

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import './Portfolio.css';
 import PortfolioUploadForm from './PortfolioUploadForm';
 import { AuthContext } from '../../auth/AuthContext';
+import SharedHero from '../../shared/SharedHero';
 
 // Import full portfolio data with content
 import { samplePortfolioItems, addPortfolioItem } from './Details';
@@ -96,35 +96,36 @@ const Portfolio = () => {
   };
 
   return (
-    <div className="portfolio-container">
-      <div className="portfolio-header">
-        <h1>My Creative Works</h1>
-        <p className="subtitle">A showcase of my projects, writings, and artistic expressions</p>
+    <>
+      <SharedHero 
+        title="My Creative <span class='highlight'>Portfolio</span>"
+        subtitle="Showcasing my artistic expressions and creative works"
+        description="Explore my diverse collection of writings, photography, and creative projects that reflect my passion for storytelling and visual arts."
+      />
+      
+      <div className="portfolio-container">
+        <div className="portfolio-content">
+        <div className="portfolio-categories">
+          {categories.map((category, index) => (
+            <button 
+              key={index} 
+              className={`category-btn ${selectedCategory === category ? 'active' : ''}`}
+              onClick={() => handleCategorySelect(category)}
+            >
+              {category}
+            </button>
+          ))}
           {/* Add Portfolio Button - Only shown to authenticated users */}
-        {isAuthenticated && (
-          <button 
-            className="portfolio-upload-button-top" 
-            onClick={() => setShowUploadForm(true)}
-            aria-label="Add new portfolio item"
-          >
-            Add New Portfolio Item
-          </button>
-        )}
-      </div>
-      
-      <div className="portfolio-categories">
-        {categories.map((category, index) => (
-          <button 
-            key={index} 
-            className={`category-btn ${selectedCategory === category ? 'active' : ''}`}
-            onClick={() => handleCategorySelect(category)}
-          >
-            {category}
-          </button>
-        ))}
-      </div>
-      
-      {isLoading ? (
+          {isAuthenticated && (
+            <button 
+              className="portfolio-upload-button-inline" 
+              onClick={() => setShowUploadForm(true)}
+              aria-label="Add new portfolio item"
+            >
+              + Add New Item
+            </button>
+          )}
+        </div>      {isLoading ? (
         <div className="loading-container">
           <div className="loading-spinner"></div>
           <p>Loading amazing content...</p>
@@ -165,7 +166,9 @@ const Portfolio = () => {
           onSubmit={handleAddPortfolioItem}
         />
       )}
+      </div>
     </div>
+    </>
   );
 };
 

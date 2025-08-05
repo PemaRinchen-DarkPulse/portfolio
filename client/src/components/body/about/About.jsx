@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaCode, FaLaptopCode, FaServer, FaDatabase, FaMobile, FaArrowRight } from 'react-icons/fa';
 import profileImage from '../../../assets/images/picture.png';
-import './About.css';
 
 const About = () => {
   // Skills data
@@ -14,14 +13,17 @@ const About = () => {
     { name: 'Full Stack Development', icon: <FaCode />, description: 'End-to-end application development from database to user interface.' },
   ];
   return (
-    <div className="about-container">
+    <>
       <div className="about-hero">
         <div className="hero-content">
           <h1>About <span className="highlight">Me</span></h1>
           <div className="hero-subtitle">Passionate Developer | Creative Thinker | Problem Solver</div>
           <div className="hero-line"></div>
         </div>
-      </div>      <div className="about-content">
+      </div>
+
+      <div className="about-container">
+        <div className="about-content">
         <div className="about-image-container rounded-5">
           <img src={profileImage} alt="Profile" className="about-image" />
         </div>
@@ -63,6 +65,7 @@ const About = () => {
           ))}
         </div>      </div>
     </div>
+    </>
   );
 };
 

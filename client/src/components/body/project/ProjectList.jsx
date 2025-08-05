@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { FaSearch, FaProjectDiagram, FaCode, FaPlus } from 'react-icons/fa';
+import { FaProjectDiagram, FaCode, FaPlus } from 'react-icons/fa';
 import ProjectCard from './ProjectCard';
 import ProjectUploadForm from './ProjectUploadForm';
 import { AuthContext } from '../../auth/AuthContext';
-import './Project.css';
+import SharedHero from '../../shared/SharedHero';
 
 // Sample projects data - this can be replaced with an API call in the future
 const sampleProjects = [
@@ -79,7 +79,6 @@ const ProjectList = () => {
   const [projects, setProjects] = useState([]);
   const [filteredProjects, setFilteredProjects] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [animateCards, setAnimateCards] = useState(false);
   const [showUploadForm, setShowUploadForm] = useState(false);
@@ -101,7 +100,7 @@ const ProjectList = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Filter projects based on category and search term
+  // Filter projects based on category
   useEffect(() => {
     let result = projects;
     
@@ -110,18 +109,8 @@ const ProjectList = () => {
       result = result.filter(project => project.category === selectedCategory);
     }
     
-    // Filter by search term
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      result = result.filter(project => 
-        project.title.toLowerCase().includes(term) || 
-        project.description.toLowerCase().includes(term) ||
-        (project.tech && project.tech.some(tech => tech.toLowerCase().includes(term)))
-      );
-    }
-    
     setFilteredProjects(result);
-  }, [selectedCategory, searchTerm, projects]);
+  }, [selectedCategory, projects]);
   // Get unique categories from projects
   const categories = ["All", ...new Set(projects.map(project => project.category))];
   
@@ -139,45 +128,36 @@ const ProjectList = () => {
   };
   
   return (
-    <div className="projects-container">      <div className="projects-header">
-        <h1>
-          <FaProjectDiagram style={{ marginRight: '10px', verticalAlign: 'middle' }} />
-          My Projects
-        </h1>
-        <p className="subtitle">A showcase of my technical projects and coding adventures</p>
+    <>
+      <SharedHero 
+        title="My Technical <span class='highlight'>Projects</span>"
+        subtitle="Showcasing my development skills and coding expertise"
+        description="Explore my collection of web applications, mobile apps, and software solutions built with modern technologies and best practices."
+      />
+      
+      <div className="projects-container">
+        <div className="projects-content">
+        <div className="projects-filter">
+          {categories.map((category, index) => (
+            <button 
+              key={index} 
+              className={`filter-btn ${selectedCategory === category ? 'active' : ''}`}
+              onClick={() => setSelectedCategory(category)}
+            >
+              {category} ({getCategoryCount(category)})
+            </button>
+          ))}
           {/* Add Project Button - Only shown to authenticated users */}
-        {isAuthenticated && (
-          <button 
-            className="add-project-btn-top" 
-            onClick={() => setShowUploadForm(true)}
-            aria-label="Add new project"
-          >
-            <FaPlus style={{ marginRight: '8px' }} /> Add New Project
-          </button>
-        )}
-      </div>
-      
-      <div className="project-search">
-        <FaSearch />
-        <input 
-          type="text" 
-          placeholder="Search projects by name, description or technology..." 
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
-      
-      <div className="projects-filter">
-        {categories.map((category, index) => (
-          <button 
-            key={index} 
-            className={`filter-btn ${selectedCategory === category ? 'active' : ''}`}
-            onClick={() => setSelectedCategory(category)}
-          >
-            {category} ({getCategoryCount(category)})
-          </button>
-        ))}
-      </div>
+          {isAuthenticated && (
+            <button 
+              className="add-project-btn-inline" 
+              onClick={() => setShowUploadForm(true)}
+              aria-label="Add new project"
+            >
+              <FaPlus style={{ marginRight: '8px' }} /> Add Project
+            </button>
+          )}
+        </div>
       
       {isLoading ? (
         <div className="loading-container">
@@ -213,7 +193,9 @@ const ProjectList = () => {
           onSubmit={handleAddProject} 
         />
       )}
+      </div>
     </div>
+    </>
   );
 };
 
