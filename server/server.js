@@ -29,13 +29,36 @@ app.use(express.json({ extended: false })); // Parse JSON request body
 app.use(cors(corsOptions)); // Enable CORS with configuration
 
 // Connect to MongoDB
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log('MongoDB Connected'))
-  .catch((err) => {
-    console.error('MongoDB connection error:', err.message);
+const connectDB = async () => {
+  try {
+    console.log('Attempting to connect to MongoDB...');
+    console.log('MongoDB URI:', process.env.MONGO_URI ? 'URI found' : 'URI not found');
+    
+    const conn = await mongoose.connect(process.env.MONGO_URI, {
+      serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
+      socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+    });
+    
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+  } catch (error) {
+    console.error('MongoDB connection error:', error.message);
+    console.error('Full error:', error);
+    
+    // For DNS issues, provide helpful suggestions
+    if (error.message.includes('ESERVFAIL') || error.message.includes('ENOTFOUND')) {
+      console.log('\n🔧 DNS Resolution Issue Detected:');
+      console.log('1. Check your internet connection');
+      console.log('2. Try using Google DNS (8.8.8.8, 8.8.4.4)');
+      console.log('3. Temporarily disable VPN if using one');
+      console.log('4. Check if your network blocks MongoDB Atlas connections');
+    }
+    
     process.exit(1);
-  });
+  }
+};
+
+// Call the connection function
+connectDB();
 
 // Define Routes
 console.log('Loading routes...');

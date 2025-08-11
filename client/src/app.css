@@ -592,20 +592,48 @@ body, html {
 
 .no-projects {
   text-align: center;
-  padding: 60px 0;
+  padding: 80px 40px;
   color: #718096;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.no-projects .empty-state-icon {
+  font-size: 4rem;
+  margin-bottom: 24px;
+  opacity: 0.7;
 }
 
 .no-projects h3 {
-  font-size: 1.5rem;
-  margin-bottom: 15px;
-  color: #4a5568;
+  font-size: 1.8rem;
+  margin-bottom: 16px;
+  color: #2d3748;
+  font-weight: 600;
 }
 
 .no-projects p {
-  font-size: 1rem;
-  max-width: 500px;
-  margin: 0 auto;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 24px;
+  color: #4a5568;
+}
+
+.no-projects .back-to-all-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: none;
+}
+
+.no-projects .back-to-all-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
 }
 
 .loading-container {
@@ -809,8 +837,48 @@ body, html {
 
 .no-items-message {
   text-align: center;
-  padding: 40px 0;
+  padding: 80px 40px;
   color: #718096;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.no-items-message .empty-state-icon {
+  font-size: 4rem;
+  margin-bottom: 24px;
+  opacity: 0.7;
+}
+
+.no-items-message h3 {
+  font-size: 1.8rem;
+  margin-bottom: 16px;
+  color: #2d3748;
+  font-weight: 600;
+}
+
+.no-items-message p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 24px;
+  color: #4a5568;
+}
+
+.no-items-message .back-to-all-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: none;
+}
+
+.no-items-message .back-to-all-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
 }
 
 /* ===== CONTACT PAGE STYLES ===== */

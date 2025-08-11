@@ -62,27 +62,18 @@ const PortfolioUploadForm = ({ onClose, onSubmit }) => {
     // Use the preview URL or a default image
     const imageUrl = imagePreview || "https://images.unsplash.com/photo-1518346431802-22ecff0abff1?q=80&w=800";
     
-    // Prepare the data
+    // Prepare the data for API
     const portfolioItem = {
-      id: Date.now(), // Generate a unique ID
       title: formData.title,
       category: formData.category,
       content: formData.content,
       image: imageUrl, // Use the preview URL for now
-      date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
       author: formData.author || "Anonymous",
       readTime: formData.readTime || `${Math.max(1, Math.ceil(formData.content.length / 1000))} min read`,
-      likes: 0,
-      comments: []
+      gallery: formData.category === "Photography" ? [imageUrl] : []
     };
     
-    // If it's a photography item, add gallery
-    if (formData.category === "Photography") {
-      portfolioItem.gallery = [imageUrl];
-    }
-    
     onSubmit(portfolioItem);
-    onClose();
   };
   
   // Clean up object URLs when component unmounts

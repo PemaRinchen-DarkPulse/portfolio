@@ -82,13 +82,11 @@ const ProjectUploadForm = ({ onClose, onSubmit }) => {  const [formData, setForm
     // and get back a URL. For this demo, we'll use the preview URL or a default image.
     const imageUrl = formData.imagePreview || "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800";
     
-    // Prepare the data
+    // Prepare the data for API
     const projectItem = {
-      id: Date.now(), // Generate a unique ID
       title: formData.title,
       description: formData.description,
       image: imageUrl, // Use the preview URL for now
-      date: formData.date || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long' }),
       demoLink: formData.demoLink,
       githubLink: formData.githubLink,
       tech: formData.tech,
@@ -96,7 +94,6 @@ const ProjectUploadForm = ({ onClose, onSubmit }) => {  const [formData, setForm
     };
     
     onSubmit(projectItem);
-    onClose();
   };
   
   // Handle tech input with Enter key

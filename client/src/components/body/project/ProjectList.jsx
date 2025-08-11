@@ -4,76 +4,7 @@ import ProjectCard from './ProjectCard';
 import ProjectUploadForm from './ProjectUploadForm';
 import { AuthContext } from '../../auth/AuthContext';
 import SharedHero from '../../shared/SharedHero';
-
-// Sample projects data - this can be replaced with an API call in the future
-const sampleProjects = [
-  {
-    id: 1,
-    title: "E-Commerce Website",
-    description: "A full-featured online shopping platform with cart functionality, user authentication, and payment integration.",
-    image: "https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=800",
-    date: "April 2025",
-    demoLink: "https://demo-ecommerce.example.com",
-    githubLink: "https://github.com/username/ecommerce",
-    tech: ["React", "Node.js", "MongoDB", "Stripe"],
-    category: "Web App"
-  },
-  {
-    id: 2,
-    title: "Weather Forecast App",
-    description: "Real-time weather application providing current conditions and 5-day forecasts for any location worldwide.",
-    image: "https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?q=80&w=800",
-    date: "March 2025",
-    demoLink: "https://weather-app.example.com",
-    githubLink: "https://github.com/username/weather-app",
-    tech: ["JavaScript", "HTML/CSS", "OpenWeather API"],
-    category: "Web App"
-  },
-  {
-    id: 3,
-    title: "Task Management System",
-    description: "Productivity tool allowing users to create, organize, and track tasks with deadlines and priority levels.",
-    image: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?q=80&w=800",
-    date: "February 2025",
-    demoLink: "https://tasks.example.com",
-    githubLink: "https://github.com/username/task-manager",
-    tech: ["Vue.js", "Firebase", "Tailwind CSS"],
-    category: "Web App"
-  },
-  {
-    id: 4,
-    title: "Mobile Fitness Tracker",
-    description: "Mobile application to track workouts, set fitness goals, and monitor progress with visual analytics.",
-    image: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=800",
-    date: "January 2025",
-    demoLink: "https://apps.example.com/fitness",
-    githubLink: "https://github.com/username/fitness-app",
-    tech: ["React Native", "Redux", "HealthKit", "Google Fit"],
-    category: "Mobile App"
-  },
-  {
-    id: 5,
-    title: "AI Image Generator",
-    description: "Web application leveraging machine learning to generate unique images based on user descriptions.",
-    image: "https://images.unsplash.com/photo-1561736778-92e52a7769ef?q=80&w=800",
-    date: "December 2024",
-    demoLink: "https://ai-images.example.com",
-    githubLink: "https://github.com/username/ai-image-gen",
-    tech: ["Python", "TensorFlow", "Flask", "React"],
-    category: "AI/ML"
-  },
-  {
-    id: 6,
-    title: "Cryptocurrency Dashboard",
-    description: "Real-time dashboard for tracking cryptocurrency prices, trends, and portfolio management.",
-    image: "https://images.unsplash.com/photo-1621761191319-c6fb62004040?q=80&w=800",
-    date: "November 2024",
-    demoLink: "https://crypto.example.com",
-    githubLink: "https://github.com/username/crypto-dashboard",
-    tech: ["React", "Chart.js", "CoinGecko API"],
-    category: "Finance"
-  }
-];
+import { projectAPI } from '../../../services/api';
 
 const ProjectList = () => {
   const [projects, setProjects] = useState([]);
@@ -82,22 +13,32 @@ const ProjectList = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [animateCards, setAnimateCards] = useState(false);
   const [showUploadForm, setShowUploadForm] = useState(false);
-  const { isAuthenticated } = useContext(AuthContext);
+  const [error, setError] = useState(null);
+  const { isAuthenticated, token } = useContext(AuthContext);
 
-  // Simulate fetching data
+  // Fetch projects from API
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setProjects(sampleProjects);
-      setFilteredProjects(sampleProjects);
-      setIsLoading(false);
-      
-      // Add a small delay for the animation to look smoother
-      setTimeout(() => {
-        setAnimateCards(true);
-      }, 200);
-    }, 1000);
-    
-    return () => clearTimeout(timer);
+    const fetchProjects = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const data = await projectAPI.getAll();
+        setProjects(data);
+        setFilteredProjects(data);
+        
+        // Add a small delay for the animation to look smoother
+        setTimeout(() => {
+          setAnimateCards(true);
+        }, 200);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+        setError('Failed to load projects. Please try again later.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProjects();
   }, []);
 
   // Filter projects based on category
@@ -121,11 +62,39 @@ const ProjectList = () => {
   };
 
   // Handle adding a new project
-  const handleAddProject = (newProject) => {
-    const updatedProjects = [newProject, ...projects];
-    setProjects(updatedProjects);
-    setFilteredProjects(updatedProjects);
+  const handleAddProject = async (newProject) => {
+    try {
+      const createdProject = await projectAPI.create(newProject, token);
+      const updatedProjects = [createdProject, ...projects];
+      setProjects(updatedProjects);
+      setFilteredProjects(updatedProjects);
+      setShowUploadForm(false);
+    } catch (error) {
+      console.error('Error adding project:', error);
+      setError('Failed to add project. Please try again.');
+    }
   };
+
+  if (error) {
+    return (
+      <>
+        <SharedHero 
+          title="My Technical <span class='highlight'>Projects</span>"
+          subtitle="Showcasing my development skills and coding expertise"
+          description="Explore my collection of web applications, mobile apps, and software solutions built with modern technologies and best practices."
+        />
+        <div className="projects-container">
+          <div className="error-message">
+            <h3>Error Loading Projects</h3>
+            <p>{error}</p>
+            <button onClick={() => window.location.reload()}>
+              Try Again
+            </button>
+          </div>
+        </div>
+      </>
+    );
+  }
   
   return (
     <>
@@ -180,8 +149,22 @@ const ProjectList = () => {
             </div>
           ) : (
             <div className="no-projects">
-              <h3>No projects found</h3>
-              <p>Try adjusting your search or filter criteria to find what you're looking for.</p>
+              <div className="empty-state-icon">🚀</div>
+              <h3>No Projects Yet</h3>
+              <p>
+                {selectedCategory === "All" 
+                  ? "It looks like there are no projects to showcase yet. Stay tuned for exciting developments and innovative solutions!"
+                  : `No projects found in the "${selectedCategory}" category. Explore other categories or check back later for new projects.`
+                }
+              </p>
+              {selectedCategory !== "All" && (
+                <button 
+                  className="back-to-all-btn"
+                  onClick={() => setSelectedCategory("All")}
+                >
+                  View All Categories
+                </button>
+              )}
             </div>          )}
         </>
       )}
