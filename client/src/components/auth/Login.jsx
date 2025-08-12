@@ -47,11 +47,28 @@ const Login = () => {
       }
     } catch (err) {
       console.error('Login error:', err);
-      setError(
-        err.response && err.response.data.msg
-          ? err.response.data.msg
-          : 'Login failed. Please try again.'
-      );
+      let errorMessage = 'Login failed. Please try again.';
+      
+      if (err.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.error('Error data:', err.response.data);
+        console.error('Error status:', err.response.status);
+        console.error('Error headers:', err.response.headers);
+        
+        errorMessage = err.response.data.msg || 
+                      `Server error (${err.response.status}). Please try again later.`;
+      } else if (err.request) {
+        // The request was made but no response was received
+        console.error('No response received:', err.request);
+        errorMessage = 'No response from server. Please check your connection.';
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.error('Request setup error:', err.message);
+        errorMessage = 'Request error. Please try again later.';
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

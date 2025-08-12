@@ -54,41 +54,68 @@ router.post('/register', async (req, res) => {
 // @desc    Authenticate user and get token
 // @access  Public
 router.post('/login', async (req, res) => {
+  console.log('Login attempt for:', req.body.email);
+  
   const { email, password } = req.body;
+  
+  if (!email || !password) {
+    return res.status(400).json({ msg: 'Please provide email and password' });
+  }
 
   try {
     // Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
+      console.log('User not found:', email);
       return res.status(400).json({ msg: 'Invalid credentials' });
     }
-
-    // Check password
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return res.status(400).json({ msg: 'Invalid credentials' });
-    }
-
-    // Create JWT payload
-    const payload = {
-      id: user.id,
-      email: user.email,
-      isAdmin: user.isAdmin,
-    };
-
-    // Sign token
-    jwt.sign(
-      payload,
-      process.env.JWT_SECRET,
-      { expiresIn: '7d' },
-      (err, token) => {
-        if (err) throw err;
-        res.json({ token });
+    
+    console.log('User found, comparing password');
+    
+    try {
+      // Check password
+      const isMatch = await user.comparePassword(password);
+      if (!isMatch) {
+        console.log('Password mismatch for:', email);
+        return res.status(400).json({ msg: 'Invalid credentials' });
       }
-    );
+      
+      console.log('Password match, creating token');
+      
+      // Create JWT payload
+      const payload = {
+        id: user.id,
+        email: user.email,
+        isAdmin: user.isAdmin,
+      };
+
+      // Verify JWT_SECRET exists
+      if (!process.env.JWT_SECRET) {
+        console.error('JWT_SECRET is missing in environment variables');
+        return res.status(500).json({ msg: 'Server configuration error' });
+      }
+
+      // Sign token
+      jwt.sign(
+        payload,
+        process.env.JWT_SECRET,
+        { expiresIn: '7d' },
+        (err, token) => {
+          if (err) {
+            console.error('JWT Sign error:', err);
+            return res.status(500).json({ msg: 'Authentication error' });
+          }
+          console.log('Login successful for:', email);
+          res.json({ token });
+        }
+      );
+    } catch (passwordErr) {
+      console.error('Password comparison error:', passwordErr);
+      return res.status(500).json({ msg: 'Authentication error', error: passwordErr.message });
+    }
   } catch (err) {
     console.error('Login error:', err.message);
-    res.status(500).send('Server error');
+    res.status(500).json({ msg: 'Server error', error: err.message });
   }
 });
 

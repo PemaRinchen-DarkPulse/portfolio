@@ -35,11 +35,25 @@ export const portfolioAPI = {
   // Get all portfolio items
   getAll: async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/portfolios`);
+      console.log('Fetching portfolio items from:', `${API_BASE_URL}/api/portfolios`);
+      const response = await fetch(`${API_BASE_URL}/api/portfolios`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      console.log('Portfolio API response status:', response.status);
+      
       if (!response.ok) {
-        throw new Error('Failed to fetch portfolio items');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Portfolio API error response:', errorData);
+        throw new Error(errorData.message || `HTTP ${response.status}: Failed to fetch portfolio items`);
       }
-      return await response.json();
+      
+      const data = await response.json();
+      console.log('Portfolio items fetched successfully:', data.length, 'items');
+      return data;
     } catch (error) {
       console.error('Get portfolio items error:', error);
       throw error;
