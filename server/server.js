@@ -12,21 +12,56 @@ const app = express();
 
 // CORS configuration
 const corsOptions = {
-  origin: [
-    'https://portfoliofrontend-six.vercel.app',
-    'https://portfoliofrontend-i08e3zbqg-pema-rinchens-projects-fb20da05.vercel.app',
-    'http://localhost:5173',
-    'http://localhost:5174',
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'https://portfoliofrontend-six.vercel.app',
+      'https://portfoliofrontend-i08e3zbqg-pema-rinchens-projects-fb20da05.vercel.app',
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'http://localhost:3000',
+      'http://127.0.0.1:5173'
+    ];
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('Blocked origin:', origin);
+      callback(null, true); // Allow all origins for now to debug
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'],
-  optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+  optionsSuccessStatus: 200
 };
 
 // Middleware
 app.use(express.json({ extended: false })); // Parse JSON request body
 app.use(cors(corsOptions)); // Enable CORS with configuration
+
+// Additional CORS headers middleware
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', req.get('Origin') || '*');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-auth-token, Content-Length, X-Requested-With');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
+
+// Debug middleware to log requests
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path} - Origin: ${req.get('Origin')}`);
+  next();
+});
 
 // Connect to MongoDB
 const connectDB = async () => {
@@ -82,7 +117,12 @@ console.log('All routes loaded successfully');
 
 // Health check route
 app.get('/', (req, res) => {
-  res.send('API Running');
+  res.json({ message: 'API Running', timestamp: new Date().toISOString() });
+});
+
+// Test CORS route
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'CORS test successful', origin: req.get('Origin') });
 });
 
 // Define PORT

@@ -2,9 +2,8 @@ import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from './AuthContext';
+import API_BASE_URL from '../../config/api.js';
 import './Auth.css';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -28,11 +27,14 @@ const Login = () => {
     setError('');
 
     try {
-      const res = await axios.post(`${API_URL}/api/auth/login`, {
+      console.log('Attempting login to:', `${API_BASE_URL}/api/auth/login`);
+      const res = await axios.post(`${API_BASE_URL}/api/auth/login`, {
         email,
         password,
       });
 
+      console.log('Login response:', res);
+      
       if (res.data && res.data.token) {
         // Save token to localStorage
         localStorage.setItem('token', res.data.token);
@@ -44,6 +46,7 @@ const Login = () => {
         navigate('/portfolio');
       }
     } catch (err) {
+      console.error('Login error:', err);
       setError(
         err.response && err.response.data.msg
           ? err.response.data.msg

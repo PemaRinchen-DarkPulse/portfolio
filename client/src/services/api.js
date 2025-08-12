@@ -5,6 +5,7 @@ export const sendContactMessage = async (contactData) => {
   try {
     console.log('Sending contact message to:', `${API_BASE_URL}/api/messages`);
     console.log('Contact data:', contactData);
+    console.log('API_BASE_URL:', API_BASE_URL);
 
     const response = await fetch(`${API_BASE_URL}/api/messages`, {
       method: 'POST',

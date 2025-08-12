@@ -1,8 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import API_BASE_URL from '../../config/api.js';
 
 export const AuthContext = createContext();
 
@@ -41,7 +40,7 @@ export const AuthProvider = ({ children }) => {
         axios.defaults.headers.common['x-auth-token'] = token;
         
         // Get user data
-        const res = await axios.get(`${API_URL}/api/auth/me`);
+        const res = await axios.get(`${API_BASE_URL}/api/auth/me`);
         
         setUser(res.data);
         setIsAuthenticated(true);
