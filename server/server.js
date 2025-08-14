@@ -3,6 +3,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const path = require('path');
+const fs = require('fs');
 
 // Load environment variables
 dotenv.config({ path: path.resolve(__dirname, '.env') });
@@ -36,6 +37,13 @@ const corsOptions = {
 app.use(express.json({ extended: false })); // Parse JSON request body
 app.use(cors(corsOptions)); // Enable CORS with configuration
 
+// Serve static files from the uploads directory
+const uploadsPath = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsPath)) {
+  fs.mkdirSync(uploadsPath, { recursive: true });
+}
+app.use('/uploads', express.static(uploadsPath));
+
 // Connect to MongoDB
 if (!process.env.MONGO_URI) {
   console.error('MONGO_URI is missing in environment variables');
@@ -58,6 +66,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/portfolios', require('./routes/portfolio'));
 app.use('/api/projects', require('./routes/project'));
 app.use('/api/contact', require('./routes/contact'));
+app.use('/api/messages', require('./routes/contact')); // Add alias for contact to avoid ad blockers
 
 // Health check route
 app.get('/', (req, res) => {

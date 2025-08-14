@@ -75,20 +75,65 @@ export const portfolioAPI = {
   },
 
   // Create new portfolio item
-  create: async (portfolioData, token) => {
+  create: async (portfolioData, token, imageFile = null) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/portfolios`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(portfolioData),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to create portfolio item');
+      console.log('Creating portfolio with token:', token ? 'Token exists' : 'No token');
+      
+      // Use FormData if there's an image file to upload
+      if (imageFile) {
+        const formData = new FormData();
+        
+        // Add the image file
+        formData.append('image', imageFile);
+        
+        // Add all other portfolio data as separate fields
+        Object.keys(portfolioData).forEach(key => {
+          if (key !== 'image') { // Skip the image URL since we're uploading the actual file
+            // Convert arrays or objects to JSON strings
+            if (typeof portfolioData[key] === 'object') {
+              formData.append(key, JSON.stringify(portfolioData[key]));
+            } else {
+              formData.append(key, portfolioData[key]);
+            }
+          }
+        });
+        
+        // Send the request with FormData (multipart/form-data)
+        const response = await fetch(`${API_BASE_URL}/api/portfolios`, {
+          method: 'POST',
+          headers: {
+            // Don't set Content-Type header, it will be set automatically with the boundary
+            'x-auth-token': token,
+          },
+          body: formData,
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Failed to create portfolio item. Status:', response.status, 'Response:', errorText);
+          throw new Error('Failed to create portfolio item');
+        }
+        
+        return await response.json();
+      } else {
+        // If no file to upload, use JSON as before
+        const response = await fetch(`${API_BASE_URL}/api/portfolios`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-auth-token': token,
+          },
+          body: JSON.stringify(portfolioData),
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Failed to create portfolio item. Status:', response.status, 'Response:', errorText);
+          throw new Error('Failed to create portfolio item');
+        }
+        
+        return await response.json();
       }
-      return await response.json();
     } catch (error) {
       console.error('Create portfolio item error:', error);
       throw error;
@@ -102,7 +147,7 @@ export const portfolioAPI = {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          'x-auth-token': token, // Changed from 'Authorization: Bearer ${token}' to match server expectation
         },
         body: JSON.stringify(portfolioData),
       });
@@ -122,7 +167,7 @@ export const portfolioAPI = {
       const response = await fetch(`${API_BASE_URL}/api/portfolios/${id}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'x-auth-token': token, // Changed from 'Authorization: Bearer ${token}' to match server expectation
         },
       });
       if (!response.ok) {
@@ -173,7 +218,7 @@ export const projectAPI = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          'x-auth-token': token, // Changed from 'Authorization: Bearer ${token}' to match server expectation
         },
         body: JSON.stringify(projectData),
       });
@@ -194,7 +239,7 @@ export const projectAPI = {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          'x-auth-token': token, // Changed from 'Authorization: Bearer ${token}' to match server expectation
         },
         body: JSON.stringify(projectData),
       });
@@ -214,7 +259,7 @@ export const projectAPI = {
       const response = await fetch(`${API_BASE_URL}/api/projects/${id}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'x-auth-token': token, // Changed from 'Authorization: Bearer ${token}' to match server expectation
         },
       });
       if (!response.ok) {

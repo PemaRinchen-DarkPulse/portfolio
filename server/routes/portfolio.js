@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 const router = express.Router();
 const Portfolio = require('../models/Portfolio');
 const auth = require('../middleware/auth');
+const upload = require('../utils/fileUpload');
+const path = require('path');
+const addImageBaseUrl = require('../utils/imageUrlHelper');
 
 // Health check for portfolio route
 router.get('/health', (req, res) => {
@@ -48,7 +51,11 @@ router.get('/', async (req, res) => {
     
     const portfolios = await Portfolio.find().sort({ createdAt: -1 });
     console.log(`Found ${portfolios.length} portfolio items`);
-    res.json(portfolios);
+    
+    // Convert image paths to full URLs
+    const portfoliosWithUrls = portfolios.map(portfolio => addImageBaseUrl(portfolio, req));
+    
+    res.json(portfoliosWithUrls);
   } catch (err) {
     console.error('Get portfolios error:', err);
     console.error('Error stack:', err.stack);
@@ -68,7 +75,11 @@ router.get('/:id', async (req, res) => {
     if (!portfolio) {
       return res.status(404).json({ msg: 'Portfolio not found' });
     }
-    res.json(portfolio);
+    
+    // Convert image paths to full URLs
+    const portfolioWithUrls = addImageBaseUrl(portfolio, req);
+    
+    res.json(portfolioWithUrls);
   } catch (err) {
     console.error('Get portfolio error:', err.message);
     if (err.kind === 'ObjectId') {
@@ -81,23 +92,34 @@ router.get('/:id', async (req, res) => {
 // @route   POST /api/portfolios
 // @desc    Create a portfolio
 // @access  Private (auth required)
-router.post('/', auth, async (req, res) => {
+router.post('/', auth, upload.single('image'), async (req, res) => {
   try {
-    const { title, category, content, image, readTime, gallery } = req.body;
-
+    // Get form data from request body
+    const { title, category, content, readTime } = req.body;
+    let gallery = req.body.gallery ? JSON.parse(req.body.gallery) : [];
+    
+    // Get the image file path if uploaded
+    const imagePath = req.file 
+      ? `/uploads/${req.file.filename}` 
+      : '/uploads/default-portfolio.jpg'; // Default image path
+    
     // Create new portfolio item
     const newPortfolio = new Portfolio({
       title,
       category,
       content,
-      image,
+      image: imagePath, // Store the path to the image
       readTime,
       gallery: gallery || [],
     });
 
     // Save portfolio to database
     const portfolio = await newPortfolio.save();
-    res.json(portfolio);
+    
+    // Convert image paths to full URLs before sending response
+    const portfolioWithUrls = addImageBaseUrl(portfolio, req);
+    
+    res.json(portfolioWithUrls);
   } catch (err) {
     console.error('Create portfolio error:', err.message);
     res.status(500).send('Server error');

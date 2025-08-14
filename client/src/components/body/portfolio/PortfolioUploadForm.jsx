@@ -59,21 +59,20 @@ const PortfolioUploadForm = ({ onClose, onSubmit }) => {
     const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Use the preview URL or a default image
-    const imageUrl = imagePreview || "https://images.unsplash.com/photo-1518346431802-22ecff0abff1?q=80&w=800";
-    
     // Prepare the data for API
     const portfolioItem = {
       title: formData.title,
       category: formData.category,
       content: formData.content,
-      image: imageUrl, // Use the preview URL for now
+      // No need to set image property here, as the actual file will be sent
       author: formData.author || "Anonymous",
       readTime: formData.readTime || `${Math.max(1, Math.ceil(formData.content.length / 1000))} min read`,
-      gallery: formData.category === "Photography" ? [imageUrl] : []
+      // For gallery items in Photography category, these will be handled separately
+      gallery: formData.category === "Photography" ? [] : []
     };
     
-    onSubmit(portfolioItem);
+    // Send both the data and the image file to the parent component
+    onSubmit(portfolioItem, imageFile);
   };
   
   // Clean up object URLs when component unmounts
@@ -200,6 +199,7 @@ const PortfolioUploadForm = ({ onClose, onSubmit }) => {
               {imagePreview && (
                 <div className="image-preview">
                   <img src={imagePreview} alt="Preview" />
+                  <p className="image-info">This image will be saved to the server</p>
                 </div>
               )}
               {!imagePreview && (

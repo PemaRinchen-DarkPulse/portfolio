@@ -89,9 +89,20 @@ const Portfolio = () => {
   };
   
   // Handle adding a new portfolio item
-  const handleAddPortfolioItem = async (newItem) => {
+  const handleAddPortfolioItem = async (newItem, imageFile) => {
     try {
-      const createdItem = await portfolioAPI.create(newItem, token);
+      // Check if we have a valid token before making the API call
+      if (!token) {
+        console.error('No authentication token available');
+        setError('You must be logged in to add portfolio items.');
+        return;
+      }
+      
+      console.log('Creating portfolio item with token:', token ? 'Token exists' : 'No token');
+      console.log('Image file provided:', imageFile ? 'Yes' : 'No');
+      
+      // Pass the image file to the API method
+      const createdItem = await portfolioAPI.create(newItem, token, imageFile);
       
       // Add contentPreview to the new item
       const itemWithPreview = {

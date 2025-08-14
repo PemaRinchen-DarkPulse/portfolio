@@ -93,6 +93,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         login,
         logout,
+        token: localStorage.getItem('token') // Add token to the context
       }}
     >
       {children}
