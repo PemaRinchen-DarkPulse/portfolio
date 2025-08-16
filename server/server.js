@@ -22,20 +22,71 @@ const app = express();
 
 // CORS configuration
 const corsOptions = {
-  origin: [
-    'http://localhost:5173',
-    'https://portfoliofrontend-six.vercel.app',
-    'http://localhost:3000'
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'https://portfoliofrontend-six.vercel.app',
+      'http://localhost:3000',
+      'https://portfolio-frontend-six.vercel.app' // Alternative URL format
+    ];
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'],
-  optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token', 'Origin', 'X-Requested-With', 'Accept'],
+  optionsSuccessStatus: 200,
+  preflightContinue: false
 };
 
 // Middleware
 app.use(express.json({ extended: false })); // Parse JSON request body
-app.use(cors(corsOptions)); // Enable CORS with configuration
+
+// Enable CORS with preflight handling
+app.use(cors(corsOptions));
+
+// Additional CORS headers for preflight requests
+app.options('*', cors(corsOptions)); // Enable preflight for all routes
+
+// Manual CORS middleware as backup
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'https://portfoliofrontend-six.vercel.app',
+    'http://localhost:3000',
+    'https://portfolio-frontend-six.vercel.app'
+  ];
+  
+  // Log all requests for debugging
+  console.log(`Request from origin: ${origin}, Method: ${req.method}, URL: ${req.url}`);
+  
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+    console.log(`CORS: Allowed origin ${origin}`);
+  } else {
+    console.log(`CORS: Origin ${origin} not in allowed list`);
+  }
+  
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-auth-token, Origin, X-Requested-With, Accept');
+  
+  if (req.method === 'OPTIONS') {
+    console.log('Handling preflight OPTIONS request');
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
 
 // Serve static files from the uploads directory
 const uploadsPath = path.join(__dirname, 'uploads');
@@ -61,17 +112,26 @@ mongoose
     process.exit(1);
   });
 
+// Health check route
+app.get('/', (req, res) => {
+  res.send('API Running');
+});
+
+// CORS test route
+app.get('/api/test-cors', (req, res) => {
+  res.json({ 
+    message: 'CORS is working!', 
+    origin: req.headers.origin,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Define Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/portfolios', require('./routes/portfolio'));
 app.use('/api/projects', require('./routes/project'));
 app.use('/api/contact', require('./routes/contact'));
 app.use('/api/messages', require('./routes/contact')); // Add alias for contact to avoid ad blockers
-
-// Health check route
-app.get('/', (req, res) => {
-  res.send('API Running');
-});
 
 // Define PORT
 const PORT = process.env.PORT || 5000;

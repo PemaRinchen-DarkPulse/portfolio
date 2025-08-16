@@ -1,8 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from '../../config/axios.js';
 import { AuthContext } from './AuthContext';
-import API_BASE_URL from '../../config/api.js';
 import './Auth.css';
 
 const Login = () => {
@@ -27,8 +26,9 @@ const Login = () => {
     setError('');
 
     try {
-      console.log('Attempting login to:', `${API_BASE_URL}/api/auth/login`);
-      const res = await axios.post(`${API_BASE_URL}/api/auth/login`, {
+      console.log('Attempting login...');
+      
+      const res = await axiosInstance.post('/api/auth/login', {
         email,
         password,
       });
@@ -47,6 +47,17 @@ const Login = () => {
       }
     } catch (err) {
       console.error('Login error:', err);
+      
+      // Log more details about the error
+      if (err.response) {
+        console.error('Response data:', err.response.data);
+        console.error('Response status:', err.response.status);
+      } else if (err.request) {
+        console.error('No response received:', err.request);
+      } else {
+        console.error('Error message:', err.message);
+      }
+      
       let errorMessage = 'Login failed. Please try again.';
       
       if (err.response) {

@@ -1,7 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import axiosInstance from '../../config/axios.js';
 import { jwtDecode } from 'jwt-decode';
-import API_BASE_URL from '../../config/api.js';
 
 export const AuthContext = createContext();
 
@@ -36,11 +35,9 @@ export const AuthProvider = ({ children }) => {
           return;
         }
 
-        // Valid token, set auth headers
-        axios.defaults.headers.common['x-auth-token'] = token;
-        
+        // Valid token - axios instance will handle the token
         // Get user data
-        const res = await axios.get(`${API_BASE_URL}/api/auth/me`);
+        const res = await axiosInstance.get('/api/auth/me');
         
         setUser(res.data);
         setIsAuthenticated(true);
@@ -80,7 +77,7 @@ export const AuthProvider = ({ children }) => {
   // Logout action
   const logout = () => {
     localStorage.removeItem('token');
-    delete axios.defaults.headers.common['x-auth-token'];
+    // Token removal will be handled by axios instance interceptor
     setIsAuthenticated(false);
     setUser(null);
   };
