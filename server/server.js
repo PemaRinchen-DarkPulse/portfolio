@@ -5,112 +5,103 @@ const dotenv = require('dotenv');
 const path = require('path');
 const fs = require('fs');
 
-// Load environment variables
-dotenv.config({ path: path.resolve(__dirname, '.env') });
-
-// Verify critical environment variables
-console.log('Environment loaded, checking variables...');
-if (!process.env.JWT_SECRET) {
-  console.error('WARNING: JWT_SECRET is not set in environment');
-}
-if (!process.env.MONGO_URI) {
-  console.error('WARNING: MONGO_URI is not set in environment');
+// Load environment variables (for local development)
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config({ path: path.resolve(__dirname, '.env') });
 }
 
 // Initialize Express app
 const app = express();
 
-// CORS configuration
+// Basic CORS configuration for Vercel
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    const allowedOrigins = [
-      'http://localhost:5173',
-      'https://portfoliofrontend-six.vercel.app',
-      'http://localhost:3000',
-      'https://portfolio-frontend-six.vercel.app' // Alternative URL format
-    ];
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.log('CORS blocked origin:', origin);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'https://portfoliofrontend-six.vercel.app',
+    'https://portfolio-frontend-six.vercel.app'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token', 'Origin', 'X-Requested-With', 'Accept'],
-  optionsSuccessStatus: 200,
-  preflightContinue: false
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'x-auth-token', 
+    'Origin', 
+    'X-Requested-With', 
+    'Accept'
+  ],
+  optionsSuccessStatus: 200
 };
 
 // Middleware
-app.use(express.json({ extended: false })); // Parse JSON request body
-
-// Enable CORS with preflight handling
+app.use(express.json({ extended: false }));
 app.use(cors(corsOptions));
 
-// Additional CORS headers for preflight requests
-app.options('*', cors(corsOptions)); // Enable preflight for all routes
-
-// Manual CORS middleware as backup
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  const allowedOrigins = [
-    'http://localhost:5173',
-    'https://portfoliofrontend-six.vercel.app',
-    'http://localhost:3000',
-    'https://portfolio-frontend-six.vercel.app'
-  ];
-  
-  // Log all requests for debugging
-  console.log(`Request from origin: ${origin}, Method: ${req.method}, URL: ${req.url}`);
-  
-  if (allowedOrigins.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin);
-    console.log(`CORS: Allowed origin ${origin}`);
-  } else {
-    console.log(`CORS: Origin ${origin} not in allowed list`);
+// Serve static files from the uploads directory (create directory if it doesn't exist)
+// In Vercel serverless environment, we can't create directories
+if (process.env.NODE_ENV !== 'production') {
+  // Only try to create uploads directory in development
+  const uploadsPath = path.join(__dirname, 'uploads');
+  try {
+    if (!fs.existsSync(uploadsPath)) {
+      fs.mkdirSync(uploadsPath, { recursive: true });
+    }
+    app.use('/uploads', express.static(uploadsPath));
+    console.log('Uploads directory configured for development');
+  } catch (err) {
+    console.warn('Could not create uploads directory:', err.message);
   }
-  
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-auth-token, Origin, X-Requested-With, Accept');
-  
-  if (req.method === 'OPTIONS') {
-    console.log('Handling preflight OPTIONS request');
-    res.sendStatus(200);
-  } else {
-    next();
-  }
-});
-
-// Serve static files from the uploads directory
-const uploadsPath = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsPath)) {
-  fs.mkdirSync(uploadsPath, { recursive: true });
+} else {
+  // In production (Vercel), skip local file operations
+  console.log('Running in production - skipping local uploads directory setup');
 }
-app.use('/uploads', express.static(uploadsPath));
 
-// Connect to MongoDB
+// Environment variable validation
+const requiredEnvVars = ['MONGO_URI', 'JWT_SECRET'];
+const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingEnvVars.length > 0) {
+  console.error('Missing required environment variables:', missingEnvVars);
+  if (process.env.NODE_ENV === 'production') {
+    process.exit(1);
+  }
+}
+
+// Connect to MongoDB with better error handling
 if (!process.env.MONGO_URI) {
   console.error('MONGO_URI is missing in environment variables');
   process.exit(1);
 }
 
-mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log('MongoDB Connected'))
-  .catch((err) => {
+// Connect to MongoDB with better error handling for Vercel
+const connectDB = async () => {
+  try {
+    if (!process.env.MONGO_URI) {
+      throw new Error('MONGO_URI is missing in environment variables');
+    }
+    
+    console.log('Connecting to MongoDB...');
+    const conn = await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+      maxPoolSize: 5, // Limit connection pool size for serverless
+    });
+    
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+  } catch (err) {
     console.error('MongoDB connection error:', err.message);
-    process.exit(1);
-  });
+    if (process.env.NODE_ENV === 'production') {
+      throw err; // Let Vercel handle the error
+    } else {
+      process.exit(1);
+    }
+  }
+};
+
+// Initialize database connection
+connectDB();
 
 // Health check route
 app.get('/', (req, res) => {
@@ -126,17 +117,21 @@ app.get('/api/test-cors', (req, res) => {
   });
 });
 
-// Define Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/portfolios', require('./routes/portfolio'));
-app.use('/api/projects', require('./routes/project'));
-app.use('/api/contact', require('./routes/contact'));
-app.use('/api/messages', require('./routes/contact')); // Add alias for contact to avoid ad blockers
+// Define Routes with error handling
+try {
+  app.use('/api/auth', require('./routes/auth'));
+  app.use('/api/portfolios', require('./routes/portfolio'));
+  app.use('/api/projects', require('./routes/project'));
+  app.use('/api/contact', require('./routes/contact'));
+  app.use('/api/messages', require('./routes/contact')); // Add alias for contact to avoid ad blockers
+} catch (err) {
+  console.error('Error loading routes:', err.message);
+}
 
 // Define PORT
 const PORT = process.env.PORT || 5000;
 
-// Error handling middleware
+// Global error handling middleware
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
   res.status(500).json({ 
@@ -145,5 +140,15 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// 404 handler
+app.use('*', (req, res) => {
+  res.status(404).json({ msg: 'Route not found' });
+});
+
+// Start server (only in non-serverless environment)
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
+
+// Export the app for Vercel
+module.exports = app;
