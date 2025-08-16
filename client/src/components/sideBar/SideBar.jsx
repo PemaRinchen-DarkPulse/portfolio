@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FaInstagram, FaFacebook, FaLinkedin, FaHome, FaUser, FaFileAlt, FaImage, FaServer, FaEnvelope, FaSignInAlt, FaSignOutAlt } from 'react-icons/fa';
 import { AuthContext } from '../auth/AuthContext';
+import profileImage from '../../assets/images/profile.webp';
 
 const SideBar = () => {
     const location = useLocation();
@@ -17,7 +18,7 @@ const SideBar = () => {
 
     return (
         <div
-            className="position-fixed text-white d-flex flex-column justify-content-between"
+            className="position-fixed text-white d-flex flex-column justify-content-between sidebar-container"
             style={{ backgroundColor: '#040b14', minHeight: '100vh', boxShadow: '0 0 15px rgba(0, 0, 0, 0.3)' }}
         >
             <div>
@@ -33,12 +34,19 @@ const SideBar = () => {
                         boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)'
                     }}
                 >
-                    <img src="path_to_image.jpg" alt="Profile" className="img-fluid w-100 h-100 object-fit-cover" />
+                    <img src={profileImage} alt="Profile" className="img-fluid w-100 h-100 object-fit-cover" />
                 </div>
                 
                 <div className="text-center mt-3">
                     <h4 style={{ fontWeight: '600', letterSpacing: '1px' }}>Pema Rinchen</h4>
-                    <ul className="d-flex justify-content-center mt-3" style={{ listStyle: 'none', padding: 0 }}>
+                    <ul className="d-flex justify-content-center mt-3" style={{ 
+                        listStyle: 'none', 
+                        padding: 0, 
+                        margin: '0 auto',
+                        width: '100%',
+                        display: 'flex',
+                        justifyContent: 'center'
+                    }}>
                         {[
                             { icon: <FaInstagram size={20} />, link: 'https://www.instagram.com/blazepknight/' },
                             { icon: <FaFacebook size={20} />, link: 'https://www.facebook.com/BlazePknight'  },
@@ -57,6 +65,7 @@ const SideBar = () => {
                                         backgroundColor: hovered === index ? '#1a2b3a' : 'transparent',
                                         transition: 'all 0.3s ease',
                                         transform: hovered === index ? 'translateY(-3px)' : 'translateY(0)',
+                                        margin: '0 5px',
                                     }}
                                     onMouseEnter={() => setHovered(index)}
                                     onMouseLeave={() => setHovered(null)}
@@ -70,7 +79,7 @@ const SideBar = () => {
 
                 {/* Navigation Section */}
                 <div className="mt-5">
-                    <ul className="navbar-nav ms-3" style={{ padding: '0 5px' }}>
+                    <ul className="navbar-nav" style={{ padding: '0 10px' }}>
                         {[                            { icon: <FaHome />, label: 'Home', path: '/' },
                             { icon: <FaUser />, label: 'About', path: '/about' },
                             { icon: <FaFileAlt />, label: 'Resume', path: '/resume' },

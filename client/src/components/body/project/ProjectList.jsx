@@ -81,7 +81,6 @@ const ProjectList = () => {
         <SharedHero 
           title="My Technical <span class='highlight'>Projects</span>"
           subtitle="Showcasing my development skills and coding expertise"
-          description="Explore my collection of web applications, mobile apps, and software solutions built with modern technologies and best practices."
         />
         <div className="projects-container">
           <div className="error-message">
@@ -101,7 +100,6 @@ const ProjectList = () => {
       <SharedHero 
         title="My Technical <span class='highlight'>Projects</span>"
         subtitle="Showcasing my development skills and coding expertise"
-        description="Explore my collection of web applications, mobile apps, and software solutions built with modern technologies and best practices."
       />
       
       <div className="projects-container">

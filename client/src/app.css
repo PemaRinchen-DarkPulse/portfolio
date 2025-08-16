@@ -64,8 +64,9 @@ body, html {
 }
 
 /* ===== SHARED HERO STYLES ===== */
+/* Unified hero styling for all section headers */
 .shared-hero {
-  height: 300px;
+  height: 250px; /* Reduced height since we removed the description */
   background: linear-gradient(135deg, rgba(4, 11, 20, 0.95), rgba(20, 157, 221, 0.8)), 
               url("./assets/images/hero.jpg") center/cover no-repeat;
   display: flex;
@@ -75,7 +76,7 @@ body, html {
   color: white;
   margin-bottom: 60px;
   position: relative;
-  border-radius: 0 0 30px 30px;
+  width: 100%;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
 
@@ -83,9 +84,14 @@ body, html {
   z-index: 2;
   padding: 0 20px;
   max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-.shared-hero h1 {
+/* Unified heading style for both shared-hero and about-hero */
+.shared-hero h1, .about-hero h1 {
   font-size: 3.5rem;
   font-weight: 800;
   margin-bottom: 10px;
@@ -100,21 +106,16 @@ body, html {
 
 .hero-subtitle {
   font-size: 1.2rem;
-  margin-bottom: 20px;
+  margin-bottom: 20px; /* Increased margin for better spacing */
   font-weight: 400;
   letter-spacing: 1px;
   opacity: 0.9;
+  text-align: center;
 }
 
+/* Hero description removed - keeping CSS for reference but not using it */
 .hero-description {
-  font-size: 1rem;
-  margin-bottom: 20px;
-  font-weight: 300;
-  line-height: 1.6;
-  opacity: 0.85;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  display: none; /* Hide this element since we're not using it anymore */
 }
 
 .hero-line {
@@ -123,6 +124,7 @@ body, html {
   background: var(--secondary-color);
   margin: 0 auto;
   border-radius: 2px;
+  margin-bottom: 5px;
 }
 
 /* ===== HOME PAGE STYLES ===== */
@@ -152,7 +154,7 @@ body, html {
 }
 
 .about-hero {
-  height: 300px;
+  height: 250px; /* Reduced height since we removed the description */
   background: linear-gradient(135deg, rgba(4, 11, 20, 0.95), rgba(20, 157, 221, 0.8)), 
               url("./assets/images/hero.jpg") center/cover no-repeat;
   display: flex;
@@ -162,7 +164,7 @@ body, html {
   color: white;
   margin-bottom: 60px;
   position: relative;
-  border-radius: 0 0 30px 30px;
+  width: 100%;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
 
@@ -1296,28 +1298,55 @@ body, html {
 
 /* ===== RESPONSIVE STYLES ===== */
 @media (max-width: 768px) {
-  .shared-hero {
-    height: 250px;
+  /* Unified header styles for tablet view - exactly like About Me section */
+  .shared-hero,
+  .about-hero {
+    height: 200px; /* Reduced height since we removed the description */
+    border-radius: 0;
+    margin-bottom: 40px;
+    padding: 0; /* Reset padding */
+    box-shadow: none;
+    width: 100vw; /* Full viewport width */
+    margin-left: calc(-50vw + 50%); /* Full bleed technique */
+    margin-right: calc(-50vw + 50%); /* Full bleed technique */
+    max-width: none; /* Override max-width constraints */
+    position: relative;
+    left: 0;
+    transform: none; /* Remove transform since we're using calc for full bleed */
+  }
+  
+  .shared-hero h1,
+  .about-hero h1 {
+    margin-top: 30px; /* Position title below hamburger icon */
+    font-size: 2.8rem;
   }
 
-  .shared-hero h1 {
+  .shared-hero h1,
+  .about-hero h1 {
     font-size: 2.8rem;
+    margin-bottom: 10px;
+  }
+
+  .hero-content {
+    padding: 0;
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Align from the top instead of center */
+    padding-top: 20px; /* Add space at the top */
   }
 
   .hero-subtitle {
     font-size: 1rem;
+    padding: 0;
+    margin-bottom: 20px; /* Increased for better spacing */
+    width: 90%;
   }
-
-  .hero-description {
-    font-size: 0.9rem;
-  }
-
-  .about-hero {
-    height: 250px;
-  }
-
-  .about-hero h1 {
-    font-size: 2.8rem;
+  
+  .hero-line {
+    margin-bottom: 5px;
   }
 
   .about-content {
@@ -1378,8 +1407,18 @@ body, html {
     order: 999;
   }
 
-  .contact-content {
+  .contact-content,
+  .projects-content,
+  .portfolio-content {
     padding: 20px 15px;
+  }
+  
+  .projects-container,
+  .portfolio-container,
+  .contact-container,
+  .about-container {
+    padding: 0;
+    margin-top: 0;
   }
 
   .project-upload-form, .portfolio-upload-form {
@@ -1397,21 +1436,43 @@ body, html {
   }
 }
 
+/* Specific styles for the smallest screens (mobile) */
 @media (max-width: 480px) {
-  .shared-hero h1 {
-    font-size: 2.4rem;
+  /* Unified header styles for all sections on mobile - exact match to About Me */
+  .shared-hero,
+  .about-hero {
+    height: 180px; /* Reduced height since we removed the description */
+    margin-bottom: 30px;
+    padding: 0; /* Reset padding */
+    border-radius: 0;
+    box-shadow: none;
+    width: 100vw; /* Full viewport width */
+    margin-left: calc(-50vw + 50%); /* Full bleed technique */
+    margin-right: calc(-50vw + 50%); /* Full bleed technique */
+    max-width: none; /* Override max-width constraints */
+    position: relative;
+    left: 0;
+    transform: none; /* Remove transform since we're using calc for full bleed */
   }
-
+  
+  .shared-hero h1,
+  .about-hero h1 {
+    font-size: 2.2rem;
+    margin-bottom: 8px;
+    margin-top: 30px; /* Position title below hamburger icon */
+  }
+  
   .hero-subtitle {
     font-size: 0.9rem;
+    margin-bottom: 15px; /* Slightly increased for better spacing */
+    padding: 0;
+    width: 95%;
   }
-
-  .about-hero h1 {
-    font-size: 2.4rem;
-  }
-
-  .hero-subtitle {
-    font-size: 1rem;
+  
+  .hero-line {
+    width: 60px;
+    height: 3px;
+    margin-bottom: 5px;
   }
 
   .section-title {
@@ -1476,5 +1537,37 @@ img, table, iframe {
 }
 
 .bg-primary {
+
+/* Fix for small screens to ensure headers are truly edge-to-edge */
+@media (max-width: 768px) {
+  /* Remove all margins and padding from the main content container on small screens */
+  [class*="col-"] {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  
+  /* Ensure the main container has no margin that affects our headers */
+  .me-5, .ms-5, .mx-5, .m-5 {
+    margin: 0 !important;
+  }
+  
+  /* Adjust border-radius for the main content container on mobile */
+  .col-12 {
+    border-radius: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+  
+  /* Full bleed fixes for any container that might have padding */
+  .row {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
     background-color: #007bff;
 }

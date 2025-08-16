@@ -22,13 +22,26 @@ function Layout() {
 
   useEffect(() => {
     const checkScreenSize = () => {
-      setIsSmallScreen(window.innerWidth < 768);
+      setIsSmallScreen(window.innerWidth < 1200);
     };
 
+    // Initial check
     checkScreenSize();
+    
+    // Set up resize listener
     window.addEventListener('resize', checkScreenSize);
 
+    // Cleanup listener on component unmount
     return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+  
+  // Add an additional check after component mount to ensure correct initial state
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsSmallScreen(window.innerWidth < 1200);
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   // ⬅️ If current route is '/login', skip layout and just render the login form
@@ -46,21 +59,24 @@ function Layout() {
       }}
     >
       {!isSmallScreen && (
-        <div className="d-none d-md-block col-2">
+        <div className="d-none d-xl-block col-2">
           <SideBar />
         </div>
       )}
       <div
-        className={`col-${isSmallScreen ? '12' : '10'} ${isSmallScreen ? 'my-0' : 'my-3'} me-5`}
+        className={`col-${isSmallScreen ? '12' : '10'} ${isSmallScreen ? 'my-0' : 'my-3'} ${isSmallScreen ? '' : 'me-5'}`}
         style={{
           position: 'relative',
           marginLeft: isSmallScreen ? '0px' : '30px',
+          marginRight: isSmallScreen ? '0px' : undefined,
           backgroundColor: '#f4f4f9',
-          borderRadius: '15px',
+          borderRadius: isSmallScreen ? '0' : '15px',
           boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)',
+          overflowX: 'hidden'
         }}
       >
-        {isSmallScreen && <SideBarSmallScreen />}
+        {/* Always show SideBarSmallScreen component, it has internal responsive logic */}
+        <SideBarSmallScreen />
 
         <Routes>
           <Route path="/" element={<Home />} />

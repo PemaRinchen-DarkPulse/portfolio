@@ -17,11 +17,10 @@ const SharedHero = ({
     : {};
 
   return (
-    <div className={`shared-hero ${className}`} style={heroStyle}>
+    <div className={`about-hero ${className}`} style={{...heroStyle, overflow: 'hidden'}}>
       <div className="hero-content">
         <h1 dangerouslySetInnerHTML={{ __html: title }} />
         {subtitle && <div className="hero-subtitle">{subtitle}</div>}
-        {description && <p className="hero-description">{description}</p>}
         <div className="hero-line"></div>
       </div>
     </div>

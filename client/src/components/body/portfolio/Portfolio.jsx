@@ -125,7 +125,6 @@ const Portfolio = () => {
         <SharedHero 
           title="My Creative <span class='highlight'>Portfolio</span>"
           subtitle="Showcasing my artistic expressions and creative works"
-          description="Explore my diverse collection of writings, photography, and creative projects that reflect my passion for storytelling and visual arts."
         />
         <div className="portfolio-container">
           <div className="error-message">
@@ -145,7 +144,6 @@ const Portfolio = () => {
       <SharedHero 
         title="My Creative <span class='highlight'>Portfolio</span>"
         subtitle="Showcasing my artistic expressions and creative works"
-        description="Explore my diverse collection of writings, photography, and creative projects that reflect my passion for storytelling and visual arts."
       />
       
       <div className="portfolio-container">

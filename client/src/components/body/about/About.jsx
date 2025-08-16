@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaCode, FaLaptopCode, FaServer, FaDatabase, FaMobile, FaArrowRight } from 'react-icons/fa';
-import profileImage from '../../../assets/images/picture.png';
+import aboutImage from '../../../assets/images/about.jpg';
 
 const About = () => {
   // Skills data
@@ -25,7 +25,7 @@ const About = () => {
       <div className="about-container">
         <div className="about-content">
         <div className="about-image-container rounded-5">
-          <img src={profileImage} alt="Profile" className="about-image" />
+          <img src={aboutImage} alt="About Me" className="about-image" />
         </div>
 
         <div className="about-text">

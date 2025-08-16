@@ -1,0 +1,128 @@
+/* Navbar.css */
+.menu-btn {
+  transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+  position: fixed !important;
+  right: 15px !important;
+  top: 15px !important;
+  z-index: 1050 !important; /* Ensure button is always on top */
+  outline: none !important;
+}
+
+/* Adjust menu button position on smaller screens */
+@media (max-width: 1200px) {
+  .menu-btn {
+    top: 15px !important;
+    right: 15px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .menu-btn {
+    top: 10px !important;
+    right: 10px !important;
+  }
+}
+
+.menu-btn:hover {
+  transform: scale(1.05);
+}
+
+.menu-btn:active {
+  transform: scale(0.95);
+}
+
+.menu-btn-icon {
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.menu-btn.open .menu-btn-icon {
+  transform: rotate(90deg);
+}
+
+/* SVG animations */
+.menu-btn svg path {
+  transition: all 0.3s ease;
+}
+
+/* Enhance the offcanvas appearance */
+.offcanvas {
+  transition: transform 0.3s ease-in-out;
+  border-right: none; /* Remove any border */
+}
+
+.offcanvas-start {
+  overflow-y: auto; /* Add scrolling if needed */
+  overflow-x: hidden;
+}
+
+/* Hide the close button completely */
+.offcanvas .btn-close {
+  display: none;
+}
+
+/* Match the width in the small screen view to desktop */
+@media (max-width: 1200px) {
+  .offcanvas-start {
+    width: 270px !important;
+  }
+  
+  /* Ensure toggle button is always visible and stays in position */
+  .menu-btn {
+    display: flex !important;
+  }
+  
+  /* Center social media icons better on small screens */
+  .offcanvas ul.d-flex.justify-content-center {
+    justify-content: center !important;
+    width: 100% !important;
+    padding: 0 !important;
+  }
+}
+
+/* Add a subtle pulse animation to the hamburger button when closed */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(30, 42, 71, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(30, 42, 71, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(30, 42, 71, 0);
+  }
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+/* Ensure sidebar content is properly centered on smaller screens */
+@media (max-width: 1200px) {
+  .sidebar-container {
+    width: 100% !important;
+    padding: 0 !important;
+  }
+  
+  .offcanvas .sidebar-container {
+    position: relative !important;
+    width: 100% !important;
+  }
+}
+
+/* Additional mobile-specific styles */
+@media (max-width: 768px) {
+  .sidebar-container {
+    width: 100% !important;
+    padding: 0 !important;
+  }
+  
+  .offcanvas .sidebar-container {
+    position: relative !important;
+    width: 100% !important;
+  }
+}
