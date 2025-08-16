@@ -1,4 +1,5 @@
 import axiosInstance from '../config/axios.js';
+import API_BASE_URL from '../config/api.js';
 
 // Contact API - using 'messages' endpoint to avoid ad blocker
 export const sendContactMessage = async (contactData) => {
@@ -23,25 +24,12 @@ export const portfolioAPI = {
   // Get all portfolio items
   getAll: async () => {
     try {
-      console.log('Fetching portfolio items from:', `${API_BASE_URL}/api/portfolios`);
-      const response = await fetch(`${API_BASE_URL}/api/portfolios`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      console.log('Fetching portfolio items...');
+      const response = await axiosInstance.get('/api/portfolios');
       
       console.log('Portfolio API response status:', response.status);
-      
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('Portfolio API error response:', errorData);
-        throw new Error(errorData.message || `HTTP ${response.status}: Failed to fetch portfolio items`);
-      }
-      
-      const data = await response.json();
-      console.log('Portfolio items fetched successfully:', data.length, 'items');
-      return data;
+      console.log('Portfolio items fetched successfully:', response.data.length, 'items');
+      return response.data;
     } catch (error) {
       console.error('Get portfolio items error:', error);
       throw error;
@@ -51,11 +39,8 @@ export const portfolioAPI = {
   // Get portfolio item by ID
   getById: async (id) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/portfolios/${id}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch portfolio item');
-      }
-      return await response.json();
+      const response = await axiosInstance.get(`/api/portfolios/${id}`);
+      return response.data;
     } catch (error) {
       console.error('Get portfolio item error:', error);
       throw error;
