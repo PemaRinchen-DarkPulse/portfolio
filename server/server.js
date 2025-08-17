@@ -217,10 +217,20 @@ try {
   const contactRoutes = require('./routes/contact');
   const chatRoutes = require('./routes/chat');
   
+  console.log('Routes loaded, registering with Express...');
+  
   // Add logging middleware for API routes
   app.use('/api', (req, res, next) => {
     console.log(`${req.method} ${req.originalUrl} - ${new Date().toISOString()}`);
     next();
+  });
+  
+  // Test route to verify portfolios are available
+  app.get('/api/test-portfolio', (req, res) => {
+    res.json({ 
+      message: 'Portfolio route test successful',
+      timestamp: new Date().toISOString()
+    });
   });
   
   app.use('/api/auth', authRoutes);
