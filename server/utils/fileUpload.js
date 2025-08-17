@@ -2,23 +2,39 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Ensure upload directory exists
-const uploadDir = path.join(__dirname, '..', 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+// Ensure upload directory exists (only in development)
+let uploadDir;
+let storage;
 
-// Configure multer storage
-const storage = multer.diskStorage({
-  destination: function(req, file, cb) {
-    cb(null, uploadDir);
-  },
-  filename: function(req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const ext = path.extname(file.originalname);
-    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+if (process.env.NODE_ENV !== 'production') {
+  // Only try to create uploads directory in development
+  uploadDir = path.join(__dirname, '..', 'uploads');
+  try {
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    
+    // Configure multer storage for development
+    storage = multer.diskStorage({
+      destination: function(req, file, cb) {
+        cb(null, uploadDir);
+      },
+      filename: function(req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname);
+        cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+      }
+    });
+  } catch (err) {
+    console.warn('Could not create uploads directory:', err.message);
+    // Fallback to memory storage if directory creation fails
+    storage = multer.memoryStorage();
   }
-});
+} else {
+  // In production (Vercel), use memory storage since we can't write to filesystem
+  console.log('Using memory storage for file uploads in production');
+  storage = multer.memoryStorage();
+}
 
 // File filter to accept only images
 const fileFilter = (req, file, cb) => {
