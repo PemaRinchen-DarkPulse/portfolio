@@ -210,41 +210,66 @@ app.get('/api/test-env', (req, res) => {
 });
 
 // Define Routes with error handling
+console.log('Starting route loading...');
+
+// Add logging middleware for API routes FIRST
+app.use('/api', (req, res, next) => {
+  console.log(`${req.method} ${req.originalUrl} - ${new Date().toISOString()}`);
+  next();
+});
+
+// Test route to verify server is working
+app.get('/api/test-portfolio', (req, res) => {
+  res.json({ 
+    message: 'Portfolio route test successful',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Load each route individually with error handling
+try {
+  const portfolioRoutes = require('./routes/portfolio');
+  app.use('/api/portfolios', portfolioRoutes);
+  console.log('Portfolio routes loaded successfully');
+} catch (err) {
+  console.error('Error loading portfolio routes:', err.message);
+  console.error('Portfolio route error stack:', err.stack);
+}
+
 try {
   const authRoutes = require('./routes/auth');
-  const portfolioRoutes = require('./routes/portfolio');
-  const projectRoutes = require('./routes/project');
-  const contactRoutes = require('./routes/contact');
-  const chatRoutes = require('./routes/chat');
-  
-  console.log('Routes loaded, registering with Express...');
-  
-  // Add logging middleware for API routes
-  app.use('/api', (req, res, next) => {
-    console.log(`${req.method} ${req.originalUrl} - ${new Date().toISOString()}`);
-    next();
-  });
-  
-  // Test route to verify portfolios are available
-  app.get('/api/test-portfolio', (req, res) => {
-    res.json({ 
-      message: 'Portfolio route test successful',
-      timestamp: new Date().toISOString()
-    });
-  });
-  
   app.use('/api/auth', authRoutes);
-  app.use('/api/portfolios', portfolioRoutes);
+  console.log('Auth routes loaded successfully');
+} catch (err) {
+  console.error('Error loading auth routes:', err.message);
+}
+
+try {
+  const projectRoutes = require('./routes/project');
   app.use('/api/projects', projectRoutes);
+  console.log('Project routes loaded successfully');
+} catch (err) {
+  console.error('Error loading project routes:', err.message);
+}
+
+try {
+  const contactRoutes = require('./routes/contact');
   app.use('/api/contact', contactRoutes);
   app.use('/api/messages', contactRoutes); // Add alias for contact to avoid ad blockers
-  app.use('/api/chat', chatRoutes);
-  
-  console.log('All routes loaded successfully');
+  console.log('Contact routes loaded successfully');
 } catch (err) {
-  console.error('Error loading routes:', err.message);
-  console.error('Stack trace:', err.stack);
+  console.error('Error loading contact routes:', err.message);
 }
+
+try {
+  const chatRoutes = require('./routes/chat');
+  app.use('/api/chat', chatRoutes);
+  console.log('Chat routes loaded successfully');
+} catch (err) {
+  console.error('Error loading chat routes:', err.message);
+}
+
+console.log('Route loading complete');
 
 // Define PORT
 const PORT = process.env.PORT || 5000;
