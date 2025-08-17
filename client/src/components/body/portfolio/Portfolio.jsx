@@ -88,8 +88,8 @@ const Portfolio = () => {
     setSelectedCategory(category);
   };
   
-  // Handle adding a new portfolio item
-  const handleAddPortfolioItem = async (newItem, imageFile) => {
+  // Handle adding a new portfolio item with Base64 image
+  const handleAddPortfolioItem = async (newItem) => {
     try {
       // Check if we have a valid token before making the API call
       if (!token) {
@@ -99,10 +99,10 @@ const Portfolio = () => {
       }
       
       console.log('Creating portfolio item with token:', token ? 'Token exists' : 'No token');
-      console.log('Image file provided:', imageFile ? 'Yes' : 'No');
+      console.log('Image data provided:', newItem.image ? 'Yes' : 'No');
       
-      // Pass the image file to the API method
-      const createdItem = await portfolioAPI.create(newItem, token, imageFile);
+      // Call the API with the Base64 image data included in newItem
+      const createdItem = await portfolioAPI.create(newItem, token);
       
       // Add contentPreview to the new item
       const itemWithPreview = {

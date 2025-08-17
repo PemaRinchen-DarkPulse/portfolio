@@ -25,18 +25,82 @@ const PortfolioUploadForm = ({ onClose, onSubmit }) => {
       [name]: value
     }));
   };
-  const handleImageChange = (e) => {
+  // Image compression function
+  const compressImage = (file, maxWidth = 1200, quality = 0.8) => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        // Calculate new dimensions
+        let { width, height } = img;
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+        
+        // Set canvas dimensions
+        canvas.width = width;
+        canvas.height = height;
+        
+        // Draw and compress
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(resolve, file.type, quality);
+      };
+      
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      setImageFile(file);
-      // Create a preview URL for the image
-      const previewUrl = URL.createObjectURL(file);
-      setImagePreview(previewUrl);
-      // Store the file name in the form data for display purposes
-      setFormData(prevData => ({
-        ...prevData,
-        image: file.name
-      }));
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select a valid image file');
+        return;
+      }
+      
+      // Validate file size (10MB limit before compression)
+      if (file.size > 10 * 1024 * 1024) {
+        alert('Image size must be less than 10MB');
+        return;
+      }
+      
+      try {
+        // Compress the image
+        const compressedFile = await compressImage(file);
+        
+        setImageFile(compressedFile);
+        
+        // Create a preview URL for the image
+        const previewUrl = URL.createObjectURL(compressedFile);
+        setImagePreview(previewUrl);
+        
+        // Convert compressed image to Base64
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const base64String = e.target.result;
+          const sizeInMB = (base64String.length * 0.75) / (1024 * 1024); // Estimate Base64 size
+          
+          if (sizeInMB > 8) {
+            alert('Compressed image is still too large. Please try a smaller image.');
+            return;
+          }
+          
+          console.log(`Image compressed to ${sizeInMB.toFixed(2)}MB`);
+          setFormData(prevData => ({
+            ...prevData,
+            image: base64String,
+            imageType: compressedFile.type
+          }));
+        };
+        reader.readAsDataURL(compressedFile);
+      } catch (error) {
+        console.error('Error compressing image:', error);
+        alert('Error processing image. Please try again.');
+      }
     }
   };
   
@@ -56,23 +120,29 @@ const PortfolioUploadForm = ({ onClose, onSubmit }) => {
       setShowNewCategory(false);
     }
   };
-    const handleSubmit = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Prepare the data for API
+    // Validate required fields
+    if (!formData.title || !formData.category || !formData.content || !formData.image) {
+      alert('Please fill in all required fields and select an image');
+      return;
+    }
+    
+    // Prepare the data for API with Base64 image
     const portfolioItem = {
       title: formData.title,
       category: formData.category,
       content: formData.content,
-      // No need to set image property here, as the actual file will be sent
+      image: formData.image, // This is now Base64 data URL
+      imageType: formData.imageType,
       author: formData.author || "Anonymous",
       readTime: formData.readTime || `${Math.max(1, Math.ceil(formData.content.length / 1000))} min read`,
-      // For gallery items in Photography category, these will be handled separately
       gallery: formData.category === "Photography" ? [] : []
     };
     
-    // Send both the data and the image file to the parent component
-    onSubmit(portfolioItem, imageFile);
+    // Send the data with Base64 image (no separate file needed)
+    onSubmit(portfolioItem);
   };
   
   // Clean up object URLs when component unmounts

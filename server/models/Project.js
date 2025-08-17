@@ -13,6 +13,13 @@ const ProjectSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  imageType: {
+    type: String, // Store MIME type (e.g., 'image/jpeg', 'image/png')
+    default: 'image/jpeg',
+  },
+  imageSize: {
+    type: Number, // Store file size in bytes for reference
+  },
   date: {
     type: String,
     default: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long' }),

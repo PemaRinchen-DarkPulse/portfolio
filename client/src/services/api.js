@@ -47,68 +47,27 @@ export const portfolioAPI = {
     }
   },
 
-  // Create new portfolio item
-  create: async (portfolioData, token, imageFile = null) => {
+  // Create new portfolio item with Base64 image
+  create: async (portfolioData, token) => {
     try {
       console.log('Creating portfolio with token:', token ? 'Token exists' : 'No token');
+      console.log('Portfolio data:', portfolioData);
       
-      // Use FormData if there's an image file to upload
-      if (imageFile) {
-        const formData = new FormData();
-        
-        // Add the image file
-        formData.append('image', imageFile);
-        
-        // Add all other portfolio data as separate fields
-        Object.keys(portfolioData).forEach(key => {
-          if (key !== 'image') { // Skip the image URL since we're uploading the actual file
-            // Convert arrays or objects to JSON strings
-            if (typeof portfolioData[key] === 'object') {
-              formData.append(key, JSON.stringify(portfolioData[key]));
-            } else {
-              formData.append(key, portfolioData[key]);
-            }
-          }
-        });
-        
-        // Send the request with FormData (multipart/form-data)
-        const response = await fetch(`${API_BASE_URL}/api/portfolios`, {
-          method: 'POST',
-          headers: {
-            // Don't set Content-Type header, it will be set automatically with the boundary
-            'x-auth-token': token,
-          },
-          body: formData,
-        });
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Failed to create portfolio item. Status:', response.status, 'Response:', errorText);
-          throw new Error('Failed to create portfolio item');
-        }
-        
-        return await response.json();
-      } else {
-        // If no file to upload, use JSON as before
-        const response = await fetch(`${API_BASE_URL}/api/portfolios`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-auth-token': token,
-          },
-          body: JSON.stringify(portfolioData),
-        });
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Failed to create portfolio item. Status:', response.status, 'Response:', errorText);
-          throw new Error('Failed to create portfolio item');
-        }
-        
-        return await response.json();
-      }
+      // Use our axios instance to send JSON data with Base64 image
+      const response = await axiosInstance.post('/api/portfolios', portfolioData, {
+        headers: {
+          'x-auth-token': token,
+        },
+      });
+      
+      console.log('Portfolio created successfully:', response.data);
+      return response.data;
     } catch (error) {
-      console.error('Create portfolio item error:', error);
+      console.error('Portfolio API Error:', error);
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+        throw new Error(error.response.data.msg || 'Failed to create portfolio item');
+      }
       throw error;
     }
   },
@@ -116,20 +75,17 @@ export const portfolioAPI = {
   // Update portfolio item
   update: async (id, portfolioData, token) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/portfolios/${id}`, {
-        method: 'PUT',
+      const response = await axiosInstance.put(`/api/portfolios/${id}`, portfolioData, {
         headers: {
-          'Content-Type': 'application/json',
-          'x-auth-token': token, // Changed from 'Authorization: Bearer ${token}' to match server expectation
+          'x-auth-token': token,
         },
-        body: JSON.stringify(portfolioData),
       });
-      if (!response.ok) {
-        throw new Error('Failed to update portfolio item');
-      }
-      return await response.json();
+      return response.data;
     } catch (error) {
       console.error('Update portfolio item error:', error);
+      if (error.response) {
+        throw new Error(error.response.data.msg || 'Failed to update portfolio item');
+      }
       throw error;
     }
   },
@@ -137,16 +93,12 @@ export const portfolioAPI = {
   // Delete portfolio item
   delete: async (id, token) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/portfolios/${id}`, {
-        method: 'DELETE',
+      const response = await axiosInstance.delete(`/api/portfolios/${id}`, {
         headers: {
-          'x-auth-token': token, // Changed from 'Authorization: Bearer ${token}' to match server expectation
+          'x-auth-token': token,
         },
       });
-      if (!response.ok) {
-        throw new Error('Failed to delete portfolio item');
-      }
-      return await response.json();
+      return response.data;
     } catch (error) {
       console.error('Delete portfolio item error:', error);
       throw error;
@@ -187,20 +139,18 @@ export const projectAPI = {
   // Create new project
   create: async (projectData, token) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/projects`, {
-        method: 'POST',
+      console.log('Creating project with Base64 image');
+      const response = await axiosInstance.post('/api/projects', projectData, {
         headers: {
-          'Content-Type': 'application/json',
-          'x-auth-token': token, // Changed from 'Authorization: Bearer ${token}' to match server expectation
+          'x-auth-token': token,
         },
-        body: JSON.stringify(projectData),
       });
-      if (!response.ok) {
-        throw new Error('Failed to create project');
-      }
-      return await response.json();
+      return response.data;
     } catch (error) {
       console.error('Create project error:', error);
+      if (error.response) {
+        throw new Error(error.response.data.msg || 'Failed to create project');
+      }
       throw error;
     }
   },
@@ -208,20 +158,17 @@ export const projectAPI = {
   // Update project
   update: async (id, projectData, token) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/projects/${id}`, {
-        method: 'PUT',
+      const response = await axiosInstance.put(`/api/projects/${id}`, projectData, {
         headers: {
-          'Content-Type': 'application/json',
-          'x-auth-token': token, // Changed from 'Authorization: Bearer ${token}' to match server expectation
+          'x-auth-token': token,
         },
-        body: JSON.stringify(projectData),
       });
-      if (!response.ok) {
-        throw new Error('Failed to update project');
-      }
-      return await response.json();
+      return response.data;
     } catch (error) {
       console.error('Update project error:', error);
+      if (error.response) {
+        throw new Error(error.response.data.msg || 'Failed to update project');
+      }
       throw error;
     }
   },

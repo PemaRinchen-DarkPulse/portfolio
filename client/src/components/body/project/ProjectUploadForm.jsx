@@ -1,6 +1,28 @@
 import React, { useState } from 'react';
 import { FaUpload, FaCode, FaTimes } from 'react-icons/fa';
 
+// Helper function to compress image
+const compressImage = (file, maxWidth = 800, quality = 0.8) => {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    
+    img.onload = () => {
+      // Calculate new dimensions
+      const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
+      canvas.width = img.width * ratio;
+      canvas.height = img.height * ratio;
+      
+      // Draw and compress
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(resolve, 'image/jpeg', quality);
+    };
+    
+    img.src = URL.createObjectURL(file);
+  });
+};
+
 const ProjectUploadForm = ({ onClose, onSubmit }) => {  const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -61,38 +83,75 @@ const ProjectUploadForm = ({ onClose, onSubmit }) => {  const [formData, setForm
     }));
   };
   
-  // Handle image file upload
-  const handleImageUpload = (e) => {
+  // Handle image file upload with Base64 conversion
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Create a preview URL for the selected image
-      const imageUrl = URL.createObjectURL(file);
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select a valid image file');
+        return;
+      }
       
-      setFormData(prevData => ({
-        ...prevData,
-        image: file, // Store the actual file object
-        imagePreview: imageUrl, // Store the preview URL
-        imageName: file.name // Store the filename for display
-      }));
+      // Validate file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image size must be less than 5MB');
+        return;
+      }
+      
+      try {
+        // Create a preview URL for the selected image
+        const imageUrl = URL.createObjectURL(file);
+        
+        // Compress the image
+        const compressedFile = await compressImage(file);
+        
+        // Convert compressed image to Base64
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const base64String = e.target.result;
+          setFormData(prevData => ({
+            ...prevData,
+            image: base64String, // Store Base64 data URL
+            imageType: compressedFile.type,
+            imagePreview: imageUrl, // Store the preview URL for display
+            imageName: file.name // Store the filename for display
+          }));
+        };
+        reader.readAsDataURL(compressedFile);
+        
+      } catch (error) {
+        console.error('Error processing image:', error);
+        alert('Error processing image. Please try again.');
+      }
     }
   };  const handleSubmit = (e) => {
     e.preventDefault();
     
-    // In a real-world scenario, you would upload the image to a server/storage service
-    // and get back a URL. For this demo, we'll use the preview URL or a default image.
-    const imageUrl = formData.imagePreview || "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800";
+    // Validate required fields
+    if (!formData.title || !formData.description || !formData.category) {
+      alert('Please fill in all required fields');
+      return;
+    }
     
-    // Prepare the data for API
+    if (!formData.image) {
+      alert('Please select an image for your project');
+      return;
+    }
+    
+    // Prepare the data for API with Base64 image
     const projectItem = {
       title: formData.title,
       description: formData.description,
-      image: imageUrl, // Use the preview URL for now
+      image: formData.image, // This is now Base64 data URL
+      imageType: formData.imageType,
       demoLink: formData.demoLink,
       githubLink: formData.githubLink,
       tech: formData.tech,
       category: formData.category
     };
     
+    console.log('Submitting project with Base64 image');
     onSubmit(projectItem);
   };
   

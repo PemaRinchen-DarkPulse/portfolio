@@ -34,8 +34,27 @@ const corsOptions = {
   optionsSuccessStatus: 200
 };
 
-// Middleware
-app.use(express.json({ extended: false }));
+// Middleware - Increase payload limits for Base64 images
+app.use(express.json({ 
+  limit: '10mb', // Increase limit to 10MB for Base64 images
+  extended: false 
+}));
+app.use(express.urlencoded({ 
+  limit: '10mb', // Also increase URL-encoded limit
+  extended: true 
+}));
+
+// Add middleware to log request sizes
+app.use((req, res, next) => {
+  if (req.headers['content-length']) {
+    const sizeInMB = parseInt(req.headers['content-length']) / (1024 * 1024);
+    if (sizeInMB > 1) {
+      console.log(`Large request: ${req.method} ${req.url} - Size: ${sizeInMB.toFixed(2)}MB`);
+    }
+  }
+  next();
+});
+
 app.use(cors(corsOptions));
 
 // Serve static files from the uploads directory (create directory if it doesn't exist)
@@ -117,6 +136,18 @@ app.get('/api/test-cors', (req, res) => {
   });
 });
 
+// Environment test route (remove in production)
+app.get('/api/test-env', (req, res) => {
+  res.json({ 
+    message: 'Environment check',
+    nodeEnv: process.env.NODE_ENV,
+    hasMongoUri: !!process.env.MONGO_URI,
+    hasJwtSecret: !!process.env.JWT_SECRET,
+    mongoUriLength: process.env.MONGO_URI ? process.env.MONGO_URI.length : 0,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Define Routes with error handling
 try {
   app.use('/api/auth', require('./routes/auth'));
@@ -134,6 +165,23 @@ const PORT = process.env.PORT || 5000;
 // Global error handling middleware
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
+  
+  // Handle payload too large error
+  if (err.type === 'entity.too.large') {
+    return res.status(413).json({ 
+      msg: 'Payload too large. Image must be smaller than 10MB.',
+      error: 'File size exceeds the maximum allowed limit'
+    });
+  }
+  
+  // Handle JSON parsing errors
+  if (err.type === 'entity.parse.failed') {
+    return res.status(400).json({ 
+      msg: 'Invalid JSON format',
+      error: 'Request body contains invalid JSON'
+    });
+  }
+  
   res.status(500).json({ 
     msg: 'Server error',
     error: process.env.NODE_ENV === 'production' ? 'An unexpected error occurred' : err.message

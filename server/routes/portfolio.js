@@ -52,10 +52,19 @@ router.get('/', async (req, res) => {
     const portfolios = await Portfolio.find().sort({ createdAt: -1 });
     console.log(`Found ${portfolios.length} portfolio items`);
     
-    // Convert image paths to full URLs
-    const portfoliosWithUrls = portfolios.map(portfolio => addImageBaseUrl(portfolio, req));
+    // Convert Base64 images to data URLs for frontend consumption
+    const portfoliosWithDataUrls = portfolios.map(portfolio => {
+      const portfolioObj = portfolio.toObject();
+      
+      // If image is stored as Base64, convert to data URL
+      if (portfolioObj.image && !portfolioObj.image.startsWith('data:') && !portfolioObj.image.startsWith('http')) {
+        portfolioObj.image = `data:${portfolioObj.imageType || 'image/jpeg'};base64,${portfolioObj.image}`;
+      }
+      
+      return portfolioObj;
+    });
     
-    res.json(portfoliosWithUrls);
+    res.json(portfoliosWithDataUrls);
   } catch (err) {
     console.error('Get portfolios error:', err);
     console.error('Error stack:', err.stack);
@@ -76,10 +85,13 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ msg: 'Portfolio not found' });
     }
     
-    // Convert image paths to full URLs
-    const portfolioWithUrls = addImageBaseUrl(portfolio, req);
+    // Convert Base64 image to data URL for frontend consumption
+    const portfolioObj = portfolio.toObject();
+    if (portfolioObj.image && !portfolioObj.image.startsWith('data:') && !portfolioObj.image.startsWith('http')) {
+      portfolioObj.image = `data:${portfolioObj.imageType || 'image/jpeg'};base64,${portfolioObj.image}`;
+    }
     
-    res.json(portfolioWithUrls);
+    res.json(portfolioObj);
   } catch (err) {
     console.error('Get portfolio error:', err.message);
     if (err.kind === 'ObjectId') {
@@ -90,25 +102,56 @@ router.get('/:id', async (req, res) => {
 });
 
 // @route   POST /api/portfolios
-// @desc    Create a portfolio
+// @desc    Create a portfolio with Base64 image storage
 // @access  Private (auth required)
-router.post('/', auth, upload.single('image'), async (req, res) => {
+router.post('/', auth, async (req, res) => {
   try {
     // Get form data from request body
-    const { title, category, content, readTime } = req.body;
-    let gallery = req.body.gallery ? JSON.parse(req.body.gallery) : [];
+    const { title, category, content, readTime, gallery, image, imageType } = req.body;
     
-    // Get the image file path if uploaded
-    const imagePath = req.file 
-      ? `/uploads/${req.file.filename}` 
-      : '/uploads/default-portfolio.jpg'; // Default image path
+    // Validate required fields
+    if (!title || !category || !content) {
+      return res.status(400).json({ msg: 'Title, category, and content are required' });
+    }
+    
+    // Validate image data
+    if (!image) {
+      return res.status(400).json({ msg: 'Image is required' });
+    }
+    
+    // Check if image is Base64 format
+    let imageData = image;
+    let mimeType = imageType || 'image/jpeg';
+    let imageSize = 0;
+    
+    // If image is already a data URL, extract the Base64 part
+    if (image.startsWith('data:')) {
+      const matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+      if (matches) {
+        mimeType = matches[1];
+        imageData = matches[2];
+        imageSize = Math.round((imageData.length * 3) / 4); // Approximate size in bytes
+      } else {
+        return res.status(400).json({ msg: 'Invalid image format' });
+      }
+    } else {
+      // Assume it's pure Base64 data
+      imageSize = Math.round((image.length * 3) / 4);
+    }
+    
+    // Check image size (limit to 5MB when encoded)
+    if (imageSize > 5 * 1024 * 1024) {
+      return res.status(400).json({ msg: 'Image size too large. Maximum 5MB allowed.' });
+    }
     
     // Create new portfolio item
     const newPortfolio = new Portfolio({
       title,
       category,
       content,
-      image: imagePath, // Store the path to the image
+      image: imageData, // Store Base64 string
+      imageType: mimeType,
+      imageSize: imageSize,
       readTime,
       gallery: gallery || [],
     });
@@ -116,18 +159,21 @@ router.post('/', auth, upload.single('image'), async (req, res) => {
     // Save portfolio to database
     const portfolio = await newPortfolio.save();
     
-    // Convert image paths to full URLs before sending response
-    const portfolioWithUrls = addImageBaseUrl(portfolio, req);
+    console.log(`Portfolio created with ID: ${portfolio._id}, image size: ${imageSize} bytes`);
     
-    res.json(portfolioWithUrls);
+    res.json({
+      ...portfolio.toObject(),
+      // Return the image as data URL for frontend consumption
+      image: `data:${portfolio.imageType};base64,${portfolio.image}`
+    });
   } catch (err) {
     console.error('Create portfolio error:', err.message);
-    res.status(500).send('Server error');
+    res.status(500).json({ msg: 'Server error', error: err.message });
   }
 });
 
 // @route   PUT /api/portfolios/:id
-// @desc    Update portfolio
+// @desc    Update portfolio with Base64 image support
 // @access  Private (auth required)
 router.put('/:id', auth, async (req, res) => {
   try {
@@ -137,17 +183,54 @@ router.put('/:id', auth, async (req, res) => {
     }
 
     // Update fields
-    const { title, category, content, image, readTime, gallery } = req.body;
+    const { title, category, content, image, imageType, readTime, gallery } = req.body;
     if (title) portfolio.title = title;
     if (category) portfolio.category = category;
     if (content) portfolio.content = content;
-    if (image) portfolio.image = image;
     if (readTime) portfolio.readTime = readTime;
     if (gallery) portfolio.gallery = gallery;
+    
+    // Handle image update
+    if (image) {
+      let imageData = image;
+      let mimeType = imageType || portfolio.imageType || 'image/jpeg';
+      let imageSize = 0;
+      
+      // If image is a data URL, extract the Base64 part
+      if (image.startsWith('data:')) {
+        const matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+        if (matches) {
+          mimeType = matches[1];
+          imageData = matches[2];
+          imageSize = Math.round((imageData.length * 3) / 4);
+        } else {
+          return res.status(400).json({ msg: 'Invalid image format' });
+        }
+      } else {
+        // Assume it's pure Base64 data
+        imageSize = Math.round((image.length * 3) / 4);
+      }
+      
+      // Check image size (limit to 5MB when encoded)
+      if (imageSize > 5 * 1024 * 1024) {
+        return res.status(400).json({ msg: 'Image size too large. Maximum 5MB allowed.' });
+      }
+      
+      portfolio.image = imageData;
+      portfolio.imageType = mimeType;
+      portfolio.imageSize = imageSize;
+    }
 
     // Save updated portfolio
     await portfolio.save();
-    res.json(portfolio);
+    
+    // Return with data URL format
+    const portfolioObj = portfolio.toObject();
+    if (portfolioObj.image && !portfolioObj.image.startsWith('data:')) {
+      portfolioObj.image = `data:${portfolioObj.imageType};base64,${portfolioObj.image}`;
+    }
+    
+    res.json(portfolioObj);
   } catch (err) {
     console.error('Update portfolio error:', err.message);
     if (err.kind === 'ObjectId') {
