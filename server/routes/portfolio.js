@@ -23,13 +23,22 @@ router.get('/', async (req, res) => {
   try {
     console.log('Attempting to fetch portfolio items...');
     
-    // Check if mongoose is connected
-    if (!mongoose.connection || mongoose.connection.readyState !== 1) {
-      console.error('MongoDB not connected, readyState:', mongoose.connection.readyState);
-      return res.status(500).json({ 
-        msg: 'Database connection error',
-        error: 'Unable to connect to the database'
-      });
+    // Simple database connection check for serverless
+    if (mongoose.connection.readyState !== 1) {
+      console.log('MongoDB not connected, attempting to connect...');
+      try {
+        await mongoose.connect(process.env.MONGO_URI, {
+          serverSelectionTimeoutMS: 5000,
+          maxPoolSize: 5,
+        });
+        console.log('MongoDB connected successfully');
+      } catch (connectErr) {
+        console.error('Failed to connect to MongoDB:', connectErr.message);
+        return res.status(500).json({ 
+          msg: 'Database connection error',
+          error: 'Unable to connect to the database'
+        });
+      }
     }
     
     const portfolios = await Portfolio.find().sort({ createdAt: -1 });
