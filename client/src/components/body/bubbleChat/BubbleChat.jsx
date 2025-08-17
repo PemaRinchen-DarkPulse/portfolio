@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FaRegCommentDots } from 'react-icons/fa';
+import { FaRegCommentDots, FaPaperPlane, FaRobot } from 'react-icons/fa';
 import { sendMessage } from './chatService';
 import './BubbleChat.css';
 
@@ -24,7 +24,10 @@ function BubbleChat() {
       // Add default greeting message when opening the chat for the first time
       setChatHistory((prev) => [
         ...prev,
-        { sender: 'AI', message: 'Hi, I am Virtual Pema. How can I help you?' },
+        { 
+          sender: 'AI', 
+          message: 'Hi! 👋 I\'m Virtual Pema, your personal assistant. I can help you learn about Pema Rinchen\'s skills, projects, and experience. What would you like to know?' 
+        },
       ]);
       setGreetingSent(true); // Mark greeting as sent
     }
@@ -63,9 +66,16 @@ function BubbleChat() {
     }
   };
 
-  // Handle Enter key press
+  // Function to safely render HTML content with links
+  const renderMessageWithLinks = (message) => {
+    // Only render HTML for AI messages, user messages should be plain text
+    return { __html: message };
+  };
+
+  // Handle Enter key press and Shift+Enter for new line
   const handleKeyPress = (event) => {
-    if (event.key === 'Enter') {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault(); // Prevent default new line
       handleSendMessage(); // Send message on Enter
     }
   };
@@ -80,22 +90,44 @@ function BubbleChat() {
       {/* Chat window */}
       {isOpen && (
         <div className="chat-window">
-          <div className="chat-header">Ask Me Anything!</div>
+          <div className="chat-header">
+            💬 Ask Me Anything!
+          </div>
           <div className="chat-body">
             {chatHistory.map((chat, index) => (
-              <div
-                key={index}
-                className={`chat-message ${chat.sender === 'You' ? 'user-message' : 'ai-message'}`}
-              >
-                <strong>{chat.sender}:</strong> {chat.message}
+              <div key={index} className="chat-message">
+                {chat.sender === 'You' ? (
+                  <div className="user-message">
+                    <div className="user-message-content">
+                      {chat.message}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="ai-message">
+                    <div className="ai-avatar">
+                      <FaRobot />
+                    </div>
+                    <div 
+                      className="ai-message-content"
+                      dangerouslySetInnerHTML={renderMessageWithLinks(chat.message)}
+                    />
+                  </div>
+                )}
               </div>
             ))}
             {isLoading && (
-              <div className="chat-message ai-message loading">
-                <div className="typing-indicator">
-                  <span></span>
-                  <span></span>
-                  <span></span>
+              <div className="chat-message">
+                <div className="ai-message">
+                  <div className="ai-avatar">
+                    <FaRobot />
+                  </div>
+                  <div className="ai-message-content loading">
+                    <div className="typing-indicator">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -111,8 +143,8 @@ function BubbleChat() {
               placeholder="Type your message..."
               disabled={isLoading}
             />
-            <button onClick={handleSendMessage} disabled={isLoading}>
-              {isLoading ? '...' : 'Send'}
+            <button onClick={handleSendMessage} disabled={isLoading || !userMessage.trim()}>
+              {isLoading ? '...' : <FaPaperPlane />}
             </button>
           </div>
         </div>

@@ -44,33 +44,33 @@ const Resume = () => {
     },
     resumeContent: {
       display: 'flex',
-      flexDirection: window.innerWidth <= 650 ? 'column' : 'row',
+      flexDirection: window.innerWidth <= 750 ? 'column' : 'row',
       gap: '0',
-      minHeight: '600px',
+      minHeight: window.innerWidth <= 750 ? 'auto' : '600px',
       borderRadius: '10px',
       overflow: 'hidden',
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
     },
     resumeLeftSection: {
-      flex: window.innerWidth <= 650 ? 'none' : '0 0 40%',
-      width: window.innerWidth <= 650 ? '100%' : 'auto',
+      flex: window.innerWidth <= 750 ? 'none' : '0 0 40%',
+      width: window.innerWidth <= 750 ? '100%' : 'auto',
       backgroundColor: '#212529',
       color: 'white',
-      padding: window.innerWidth <= 480 ? '20px 15px' : window.innerWidth <= 650 ? '25px 20px' : window.innerWidth <= 992 ? '30px 25px' : '40px 30px',
-      minHeight: '600px',
-      order: window.innerWidth <= 650 ? '1' : 'initial'
+      padding: window.innerWidth <= 480 ? '20px 15px' : window.innerWidth <= 750 ? '25px 20px' : window.innerWidth <= 992 ? '30px 25px' : '40px 30px',
+      minHeight: window.innerWidth <= 750 ? 'auto' : '600px',
+      order: window.innerWidth <= 750 ? '2' : 'initial'
     },
     resumeRightSection: {
-      flex: window.innerWidth <= 650 ? 'none' : '0 0 60%',
-      width: window.innerWidth <= 650 ? '100%' : 'auto',
+      flex: window.innerWidth <= 750 ? 'none' : '0 0 60%',
+      width: window.innerWidth <= 750 ? '100%' : 'auto',
       backgroundColor: 'white',
       color: '#343a40',
-      padding: window.innerWidth <= 480 ? '20px 15px' : window.innerWidth <= 650 ? '25px 20px' : window.innerWidth <= 992 ? '30px 25px' : '40px 30px',
-      minHeight: '600px',
-      order: window.innerWidth <= 650 ? '2' : 'initial'
+      padding: window.innerWidth <= 480 ? '20px 15px' : window.innerWidth <= 750 ? '25px 20px' : window.innerWidth <= 992 ? '30px 25px' : '40px 30px',
+      minHeight: window.innerWidth <= 750 ? 'auto' : '600px',
+      order: window.innerWidth <= 750 ? '1' : 'initial'
     },
     sectionGroup: {
-      marginBottom: window.innerWidth <= 480 ? '25px' : window.innerWidth <= 768 ? '30px' : '40px'
+      marginBottom: window.innerWidth <= 480 ? '15px' : window.innerWidth <= 750 ? '20px' : window.innerWidth <= 768 ? '30px' : '40px'
     },
     sectionTitle: {
       textTransform: 'uppercase',
@@ -150,7 +150,7 @@ const Resume = () => {
       <div style={styles.resumeHeader}>
         <h1 style={styles.resumeTitle}>Resume</h1>
         <a
-          href="https://drive.google.com/uc?export=download&id=1P_C1hugvfsPtz_zucAI057pK3ruztsLh"
+          href="https://drive.google.com/uc?export=download&id=1m_0xsO07A8nJGL31j2F1-XE-cbH1vNm1"
           style={styles.downloadBtn}
           target="_self"
           rel="noopener noreferrer"
@@ -168,135 +168,158 @@ const Resume = () => {
             <h5 style={styles.sectionTitle}>Education</h5>
             <hr style={styles.sectionDivider} />
             <div style={styles.educationEntry}>
-              <p><strong style={{color: '#ffc107'}}>2016 - 2021</strong></p>
+              <p><strong style={{color: '#ffc107'}}>Mar 2016 – Mar 2022</strong></p>
               <p>The Royal Academy</p>
               <p>Diploma in Bhutan Baccalaureate</p>
+              <p style={{fontSize: '0.9rem', color: '#ccc'}}>Coursework: Computer Architecture, Comparison of Learning Algorithms, Computational Theory</p>
             </div>
             <div style={styles.educationEntry}>
-              <p><strong style={{color: '#ffc107'}}>2022 - 2026</strong></p>
-              <p>Symbiosis Institute Of Technology</p>
-              <p>B.Tech Computer Science</p>
+              <p><strong style={{color: '#ffc107'}}>Aug 2022 – July 2026</strong></p>
+              <p>Symbiosis Institute of Technology</p>
+              <p>B.Tech Computer Science and Technology</p>
+              <p style={{fontSize: '0.9rem', color: '#ccc'}}>Coursework: Computer Architecture, Comparison of Learning Algorithms, Computational Theory</p>
             </div>
           </div>
 
           <div style={styles.sectionGroup}>
             <h5 style={styles.sectionTitle}>Skills</h5>
             <hr style={styles.sectionDivider} />
-            <ul style={styles.skillsList}>
-              <li style={{...styles.skillsListItem, '::before': {content: '"▸"', position: 'absolute', left: '0', color: '#ffc107', fontWeight: 'bold'}}}>
-                <span style={{position: 'relative'}}>
-                  <span style={{position: 'absolute', left: '-20px', color: '#ffc107', fontWeight: 'bold'}}>▸</span>
-                  Project Management
-                </span>
-              </li>
-              <li style={{...styles.skillsListItem}}>
-                <span style={{position: 'relative'}}>
-                  <span style={{position: 'absolute', left: '-20px', color: '#ffc107', fontWeight: 'bold'}}>▸</span>
-                  Public Relations
-                </span>
-              </li>
-              <li style={{...styles.skillsListItem}}>
-                <span style={{position: 'relative'}}>
-                  <span style={{position: 'absolute', left: '-20px', color: '#ffc107', fontWeight: 'bold'}}>▸</span>
-                  Teamwork
-                </span>
-              </li>
-              <li style={{...styles.skillsListItem}}>
-                <span style={{position: 'relative'}}>
-                  <span style={{position: 'absolute', left: '-20px', color: '#ffc107', fontWeight: 'bold'}}>▸</span>
-                  Time Management
-                </span>
-              </li>
-              <li style={{...styles.skillsListItem}}>
-                <span style={{position: 'relative'}}>
-                  <span style={{position: 'absolute', left: '-20px', color: '#ffc107', fontWeight: 'bold'}}>▸</span>
-                  Leadership
-                </span>
-              </li>
-              <li style={{...styles.skillsListItem}}>
-                <span style={{position: 'relative'}}>
-                  <span style={{position: 'absolute', left: '-20px', color: '#ffc107', fontWeight: 'bold'}}>▸</span>
-                  Effective Communication
-                </span>
-              </li>
-              <li style={{...styles.skillsListItem}}>
-                <span style={{position: 'relative'}}>
-                  <span style={{position: 'absolute', left: '-20px', color: '#ffc107', fontWeight: 'bold'}}>▸</span>
-                  Critical Thinking
-                </span>
-              </li>
-            </ul>
-          </div>
-
-          <div style={styles.sectionGroup}>
-            <h5 style={styles.sectionTitle}>Languages</h5>
-            <hr style={styles.sectionDivider} />
-            <ul style={styles.skillsList}>
-              <li style={{...styles.skillsListItem}}>
-                <span style={{position: 'relative'}}>
-                  <span style={{position: 'absolute', left: '-20px', color: '#ffc107', fontWeight: 'bold'}}>▸</span>
-                  English (Fluent)
-                </span>
-              </li>
-              <li style={{...styles.skillsListItem}}>
-                <span style={{position: 'relative'}}>
-                  <span style={{position: 'absolute', left: '-20px', color: '#ffc107', fontWeight: 'bold'}}>▸</span>
-                  French (Fluent)
-                </span>
-              </li>
-              <li style={{...styles.skillsListItem}}>
-                <span style={{position: 'relative'}}>
-                  <span style={{position: 'absolute', left: '-20px', color: '#ffc107', fontWeight: 'bold'}}>▸</span>
-                  German (Basics)
-                </span>
-              </li>
-              <li style={{...styles.skillsListItem}}>
-                <span style={{position: 'relative'}}>
-                  <span style={{position: 'absolute', left: '-20px', color: '#ffc107', fontWeight: 'bold'}}>▸</span>
-                  Spanish (Intermediate)
-                </span>
-              </li>
-            </ul>
+            <div style={{marginBottom: '20px'}}>
+              <p><strong style={{color: '#ffc107'}}>Programming Languages:</strong></p>
+              <ul style={styles.skillsList}>
+                <li style={{...styles.skillsListItem}}>
+                  <span style={{position: 'relative'}}>
+                    <span style={{position: 'absolute', left: '-20px', color: '#ffc107', fontWeight: 'bold'}}>▸</span>
+                    C, C++, Java
+                  </span>
+                </li>
+                <li style={{...styles.skillsListItem}}>
+                  <span style={{position: 'relative'}}>
+                    <span style={{position: 'absolute', left: '-20px', color: '#ffc107', fontWeight: 'bold'}}>▸</span>
+                    Python, JavaScript
+                  </span>
+                </li>
+              </ul>
+            </div>
+            <div style={{marginBottom: '20px'}}>
+              <p><strong style={{color: '#ffc107'}}>Frameworks & Libraries:</strong></p>
+              <ul style={styles.skillsList}>
+                <li style={{...styles.skillsListItem}}>
+                  <span style={{position: 'relative'}}>
+                    <span style={{position: 'absolute', left: '-20px', color: '#ffc107', fontWeight: 'bold'}}>▸</span>
+                    React.js, Node.js
+                  </span>
+                </li>
+                <li style={{...styles.skillsListItem}}>
+                  <span style={{position: 'relative'}}>
+                    <span style={{position: 'absolute', left: '-20px', color: '#ffc107', fontWeight: 'bold'}}>▸</span>
+                    Express.js, SpringBoot
+                  </span>
+                </li>
+              </ul>
+            </div>
+            <div style={{marginBottom: '20px'}}>
+              <p><strong style={{color: '#ffc107'}}>Databases:</strong></p>
+              <ul style={styles.skillsList}>
+                <li style={{...styles.skillsListItem}}>
+                  <span style={{position: 'relative'}}>
+                    <span style={{position: 'absolute', left: '-20px', color: '#ffc107', fontWeight: 'bold'}}>▸</span>
+                    MongoDB, MySQL
+                  </span>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <p><strong style={{color: '#ffc107'}}>Tools & Platforms:</strong></p>
+              <ul style={styles.skillsList}>
+                <li style={{...styles.skillsListItem}}>
+                  <span style={{position: 'relative'}}>
+                    <span style={{position: 'absolute', left: '-20px', color: '#ffc107', fontWeight: 'bold'}}>▸</span>
+                    Git, GitHub
+                  </span>
+                </li>
+                <li style={{...styles.skillsListItem}}>
+                  <span style={{position: 'relative'}}>
+                    <span style={{position: 'absolute', left: '-20px', color: '#ffc107', fontWeight: 'bold'}}>▸</span>
+                    Vercel, Postman
+                  </span>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
 
         {/* Right White Section */}
         <div style={styles.resumeRightSection}>
           <div style={styles.sectionGroup}>
-            <h5 style={styles.sectionTitleRight}>Profile</h5>
+            <h5 style={styles.sectionTitleRight}>Professional Summary</h5>
             <hr style={styles.sectionDividerRight} />
             <p style={styles.profileText}>
-              Experienced and dedicated professional with a strong background in business management, marketing, and team leadership. Adept at executing strategies that boost company growth and improve operational efficiency.
+              Motivated and detail-oriented Computer Science student with hands-on experience in full-stack development and 
+              data science applications. Skilled in building scalable, user-centric platforms using the MERN stack and applying 
+              machine learning models for real-world problem-solving. Developed and tested projects including an 
+              AI-powered telehealth system, an alumni networking platform, and a ride-hailing demand forecasting 
+              model. Strong foundation in programming, algorithms, and system design, with proven ability to translate ideas 
+              into functional solutions. Eager to contribute to dynamic teams and grow through impactful software development 
+              challenges.
             </p>
+          </div>
+
+          <div style={styles.sectionGroup}>
+            <h5 style={styles.sectionTitleRight}>Work Experience</h5>
+            <hr style={styles.sectionDividerRight} />
+            <div style={styles.projectEntry}>
+              <h6 style={styles.projectTitle}>Full Stack & Data Science Developer</h6>
+              <p style={styles.projectRole}><em>Self-Initiated Projects | Remote | Jun 2023 – Present</em></p>
+              <ul style={styles.projectDetails}>
+                <li style={styles.projectDetailsItem}>Built AiMediCare, an AI-powered telehealth system tested with 1,000+ patient health records, 500+ prescriptions, and 200+ pharmacy operations, improving efficiency in digital healthcare workflows.</li>
+                <li style={styles.projectDetailsItem}>Designed and tested an Alumni Network platform for The Royal Academy, connecting 500+ alumni with mentorship, collaboration, and event participation features.</li>
+                <li style={styles.projectDetailsItem}>Developed a Ride-Hailing demand forecasting model by analyzing 100,000+ ride requests, achieving 82% prediction accuracy and proposing strategies to cut cancellations by 15%.</li>
+                <li style={styles.projectDetailsItem}>Applied MERN stack, Python (ML), and data visualization libraries to deliver scalable, real-world solutions.</li>
+                <li style={styles.projectDetailsItem}>Collaborated via GitHub for version control, implemented JWT authentication, and deployed prototypes on cloud platforms.</li>
+              </ul>
+            </div>
           </div>
 
           <div style={styles.sectionGroup}>
             <h5 style={styles.sectionTitleRight}>Projects</h5>
             <hr style={styles.sectionDividerRight} />
             <div style={styles.projectEntry}>
-              <h6 style={styles.projectTitle}>E-commerce Website Redesign</h6>
-              <p style={styles.projectRole}><em>Project Manager | 2029</em></p>
+              <h6 style={styles.projectTitle}>AiMediCare – AI-Powered Telehealth System (In Progress)</h6>
+              <p style={styles.projectRole}><em>github/Ai-Medicare</em></p>
               <ul style={styles.projectDetails}>
-                <li style={styles.projectDetailsItem}>Led a team to redesign the entire e-commerce platform, improving user experience and increasing conversions by 30%.</li>
-                <li style={styles.projectDetailsItem}>Coordinated with designers, developers, and content creators to meet deadlines and deliver the project within budget.</li>
+                <li style={styles.projectDetailsItem}>Built a healthcare platform for patients, doctors, and pharmacies, enabling digital healthcare support.</li>
+                <li style={styles.projectDetailsItem}>Tested patient features for 50+ symptoms analysis, appointment scheduling, and storage of 1,000+ health records.</li>
+                <li style={styles.projectDetailsItem}>Verified doctor workflows by digitally managing 500+ prescriptions and reviewing patient history securely.</li>
+                <li style={styles.projectDetailsItem}>Simulated pharmacy operations for 200+ daily prescriptions with automated verification and inventory checks.</li>
+                <li style={styles.projectDetailsItem}>Planned ML integration targeting 85% accuracy in preliminary health recommendations.</li>
+                <li style={styles.projectDetailsItem}><strong>Tools:</strong> MongoDB, Express.js, React.js, Node.js, Python (ML), JWT Authentication, Git/GitHub</li>
               </ul>
             </div>
 
             <div style={styles.projectEntry}>
-              <h6 style={styles.projectTitle}>Market Expansion Strategy</h6>
-              <p style={styles.projectRole}><em>Project Lead | 2028</em></p>
+              <h6 style={styles.projectTitle}>Alumni Network – The Royal Academy (In Progress)</h6>
+              <p style={styles.projectRole}><em>github/Alumni-Network</em></p>
               <ul style={styles.projectDetails}>
-                <li style={styles.projectDetailsItem}>Developed a market entry strategy for a new region, which resulted in a 25% market share within the first six months.</li>
-                <li style={styles.projectDetailsItem}>Conducted market research and competitor analysis to tailor marketing efforts to local preferences.</li>
+                <li style={styles.projectDetailsItem}>Developed a platform connecting 500+ alumni for mentorship, collaboration, and events.</li>
+                <li style={styles.projectDetailsItem}>Tested mentorship features enabling 100+ students to connect with alumni for career guidance.</li>
+                <li style={styles.projectDetailsItem}>Collected 200+ teacher tributes showcasing alumni appreciation and engagement.</li>
+                <li style={styles.projectDetailsItem}>Simulated collaboration features allowing alumni to initiate/join 50+ projects across domains.</li>
+                <li style={styles.projectDetailsItem}>Tested event system for alumni to register for 20+ school events annually, improving participation.</li>
+                <li style={styles.projectDetailsItem}><strong>Tools:</strong> MongoDB, Express.js, React.js, Node.js, Python (ML), JWT Authentication, Git/GitHub</li>
               </ul>
             </div>
 
             <div style={styles.projectEntry}>
-              <h6 style={styles.projectTitle}>Branding Campaign for Startup</h6>
-              <p style={styles.projectRole}><em>Project Manager | 2027</em></p>
+              <h6 style={styles.projectTitle}>Ride-Hailing – Data Science Project</h6>
+              <p style={styles.projectRole}><em>2025</em></p>
               <ul style={styles.projectDetails}>
-                <li style={styles.projectDetailsItem}>Managed a branding campaign for a new startup, focusing on social media marketing and content creation.</li>
-                <li style={styles.projectDetailsItem}>Helped the startup increase its social media following by 50% in six months.</li>
+                <li style={styles.projectDetailsItem}>Analyzed 100,000+ ride requests to identify demand patterns across time, location, and weather conditions.</li>
+                <li style={styles.projectDetailsItem}>Cleaned and preprocessed dataset by handling 20%+ missing values and reducing noise for accurate predictions.</li>
+                <li style={styles.projectDetailsItem}>Trained machine learning models (Linear Regression, Random Forest) achieving 82% accuracy in demand forecasting.</li>
+                <li style={styles.projectDetailsItem}>Visualized peak hours, cancellation trends, and driver allocation efficiency using Matplotlib & Seaborn.</li>
+                <li style={styles.projectDetailsItem}>Proposed optimization strategy to reduce ride cancellations by 15% through better supply-demand matching.</li>
+                <li style={styles.projectDetailsItem}><strong>Tools:</strong> Python, Pandas, NumPy, Matplotlib, Seaborn, Scikit-learn, Google Colab</li>
               </ul>
             </div>
           </div>

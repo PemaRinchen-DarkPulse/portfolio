@@ -245,4 +245,64 @@ router.delete('/:id', auth, async (req, res) => {
   }
 });
 
+// @route   POST /api/portfolios/:id/comments
+// @desc    Add a comment to a portfolio item
+// @access  Public
+router.post('/:id/comments', async (req, res) => {
+  try {
+    const { name, comment } = req.body;
+    
+    // Validate required fields
+    if (!name || !comment) {
+      return res.status(400).json({ msg: 'Name and comment are required' });
+    }
+    
+    // Validate input lengths
+    if (name.trim().length < 2) {
+      return res.status(400).json({ msg: 'Name must be at least 2 characters long' });
+    }
+    
+    if (comment.trim().length < 5) {
+      return res.status(400).json({ msg: 'Comment must be at least 5 characters long' });
+    }
+    
+    // Find the portfolio item
+    const portfolio = await Portfolio.findById(req.params.id);
+    if (!portfolio) {
+      return res.status(404).json({ msg: 'Portfolio not found' });
+    }
+    
+    // Create new comment object
+    const newComment = {
+      name: name.trim(),
+      comment: comment.trim(),
+      date: new Date() // Use Date object as expected by schema
+    };
+    
+    // Add comment to the portfolio
+    portfolio.comments = portfolio.comments || [];
+    portfolio.comments.unshift(newComment); // Add to beginning for newest first
+    
+    // Save the portfolio
+    await portfolio.save();
+    
+    console.log(`Comment added to portfolio ${req.params.id} by ${name}`);
+    
+    // Return the updated portfolio with the new comment
+    res.json({
+      success: true,
+      message: 'Comment added successfully',
+      comment: newComment,
+      totalComments: portfolio.comments.length
+    });
+    
+  } catch (err) {
+    console.error('Add comment error:', err.message);
+    if (err.kind === 'ObjectId') {
+      return res.status(404).json({ msg: 'Portfolio not found' });
+    }
+    res.status(500).json({ msg: 'Server error while adding comment' });
+  }
+});
+
 module.exports = router;

@@ -1,5 +1,26 @@
 const mongoose = require('mongoose');
 
+const CommentSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true,
+    minlength: 2,
+    maxlength: 50
+  },
+  comment: {
+    type: String,
+    required: true,
+    trim: true,
+    minlength: 5,
+    maxlength: 500
+  },
+  date: {
+    type: Date,
+    default: Date.now
+  }
+});
+
 const PortfolioSchema = new mongoose.Schema({
   title: {
     type: String,
@@ -40,7 +61,7 @@ const PortfolioSchema = new mongoose.Schema({
     default: 0,
   },
   comments: {
-    type: Array,
+    type: [CommentSchema],
     default: [],
   },
   gallery: {

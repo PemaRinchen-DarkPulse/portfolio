@@ -4,6 +4,7 @@ import PortfolioUploadForm from './PortfolioUploadForm';
 import { AuthContext } from '../../auth/AuthContext';
 import SharedHero from '../../shared/SharedHero';
 import { portfolioAPI } from '../../../services/api';
+import LoadingSpinner from '../../shared/LoadingSpinner';
 
 // Function to trim content to approximately three lines
 const getContentPreview = (content, maxLength = 120) => {
@@ -59,6 +60,12 @@ const Portfolio = () => {
           ...item,
           contentPreview: getContentPreview(item.content)
         }));
+        
+        console.log('Portfolio items with IDs:', itemsWithPreviews.map(item => ({ 
+          title: item.title, 
+          _id: item._id, 
+          id: item.id 
+        })));
         
         setPortfolioItems(itemsWithPreviews);
       } catch (error) {
@@ -149,9 +156,9 @@ const Portfolio = () => {
       <div className="portfolio-container">
         <div className="portfolio-content">
         <div className="portfolio-categories">
-          {categories.map((category, index) => (
+          {categories.map((category) => (
             <button 
-              key={index} 
+              key={category} 
               className={`category-btn ${selectedCategory === category ? 'active' : ''}`}
               onClick={() => handleCategorySelect(category)}
             >
@@ -168,15 +175,18 @@ const Portfolio = () => {
               + Add New Item
             </button>
           )}
-        </div>      {isLoading ? (
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Loading amazing content...</p>
-        </div>
-      ) : (
+        </div>      
+        {isLoading ? (
+          <div className="portfolio-loading">
+            <LoadingSpinner 
+              size="large" 
+              message="Loading portfolio content..."
+            />
+          </div>
+        ) : (
         <div className="portfolio-grid">
           {filteredItems.map(item => (
-            <div className="portfolio-item" key={item.id}>
+            <div className="portfolio-item" key={item._id || item.id}>
               <div className="portfolio-item-inner">
                 <div className="portfolio-image">
                   <img src={item.image} alt={item.title} />
@@ -186,7 +196,7 @@ const Portfolio = () => {
                   <h3>{item.title}</h3>
                   <p className="portfolio-date">{item.date}</p>
                   <p className="portfolio-description">{item.contentPreview}</p>
-                  <Link to={`/portfolio/${item.id}`} className="view-details-btn">
+                  <Link to={`/portfolio/${item._id || item.id}`} className="view-details-btn">
                     View Details
                   </Link>
                 </div>

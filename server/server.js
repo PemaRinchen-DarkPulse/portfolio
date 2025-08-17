@@ -135,7 +135,25 @@ if (mongoose.connection.readyState === 0) {
 
 // Health check route
 app.get('/', (req, res) => {
-  res.send('API Running');
+  res.json({ 
+    message: 'API Running',
+    timestamp: new Date().toISOString(),
+    routes: ['/api/portfolios', '/api/projects', '/api/contact', '/api/auth']
+  });
+});
+
+// API health check
+app.get('/api', (req, res) => {
+  res.json({ 
+    message: 'API endpoints are available',
+    timestamp: new Date().toISOString(),
+    availableRoutes: [
+      'GET /api/portfolios',
+      'GET /api/projects', 
+      'POST /api/contact',
+      'POST /api/auth/login'
+    ]
+  });
 });
 
 // CORS test route
@@ -165,12 +183,20 @@ try {
   const portfolioRoutes = require('./routes/portfolio');
   const projectRoutes = require('./routes/project');
   const contactRoutes = require('./routes/contact');
+  const chatRoutes = require('./routes/chat');
+  
+  // Add logging middleware for API routes
+  app.use('/api', (req, res, next) => {
+    console.log(`${req.method} ${req.originalUrl} - ${new Date().toISOString()}`);
+    next();
+  });
   
   app.use('/api/auth', authRoutes);
   app.use('/api/portfolios', portfolioRoutes);
   app.use('/api/projects', projectRoutes);
   app.use('/api/contact', contactRoutes);
   app.use('/api/messages', contactRoutes); // Add alias for contact to avoid ad blockers
+  app.use('/api/chat', chatRoutes);
   
   console.log('All routes loaded successfully');
 } catch (err) {

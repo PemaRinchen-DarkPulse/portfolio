@@ -104,6 +104,23 @@ export const portfolioAPI = {
       throw error;
     }
   },
+
+  // Add comment to portfolio item
+  addComment: async (portfolioId, commentData) => {
+    try {
+      console.log('Adding comment to portfolio:', portfolioId, commentData);
+      const response = await axiosInstance.post(`/api/portfolios/${portfolioId}/comments`, commentData);
+      console.log('Comment added successfully:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Add comment error:', error);
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+        throw new Error(error.response.data.msg || 'Failed to add comment');
+      }
+      throw error;
+    }
+  },
 };
 
 // Project API

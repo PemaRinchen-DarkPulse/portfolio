@@ -12,21 +12,6 @@ import {
 import SharedHero from '../../shared/SharedHero';
 import { sendContactMessage } from '../../../services/api';
 
-// Add CSS animation for spinner
-const spinnerKeyframes = `
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-`;
-
-// Inject the keyframes into the document head
-if (typeof document !== 'undefined') {
-  const style = document.createElement('style');
-  style.textContent = spinnerKeyframes;
-  document.head.appendChild(style);
-}
-
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -208,14 +193,6 @@ const Contact = () => {
       height: '400px',
       border: 0,
       borderRadius: '0.5rem',
-    },
-    spinner: {
-      width: '1rem',
-      height: '1rem',
-      border: '2px solid transparent',
-      borderTop: '2px solid currentColor',
-      borderRadius: '50%',
-      animation: 'spin 1s linear infinite',
     },
   };
 
@@ -545,10 +522,7 @@ const Contact = () => {
                   }}
                 >
                   {isSubmitting ? (
-                    <>
-                      <span style={styles.spinner}></span>
-                      Sending...
-                    </>
+                    <span className="button-loading">Sending Message...</span>
                   ) : (
                     'Send Message'
                   )}

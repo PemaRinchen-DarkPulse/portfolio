@@ -5,6 +5,7 @@ import ProjectUploadForm from './ProjectUploadForm';
 import { AuthContext } from '../../auth/AuthContext';
 import SharedHero from '../../shared/SharedHero';
 import { projectAPI } from '../../../services/api';
+import LoadingSpinner from '../../shared/LoadingSpinner';
 
 const ProjectList = () => {
   const [projects, setProjects] = useState([]);
@@ -127,9 +128,11 @@ const ProjectList = () => {
         </div>
       
       {isLoading ? (
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Loading projects...</p>
+        <div className="projects-loading">
+          <LoadingSpinner 
+            size="large" 
+            message="Loading projects..."
+          />
         </div>
       ) : (
         <>
