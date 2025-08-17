@@ -85,8 +85,11 @@ const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
 
 if (missingEnvVars.length > 0) {
   console.error('Missing required environment variables:', missingEnvVars);
+  console.error('Available env vars:', Object.keys(process.env).filter(key => 
+    key.includes('MONGO') || key.includes('JWT') || key.includes('NODE')
+  ));
   if (process.env.NODE_ENV === 'production') {
-    process.exit(1);
+    throw new Error(`Missing environment variables: ${missingEnvVars.join(', ')}`);
   }
 }
 
@@ -104,9 +107,14 @@ const connectDB = async () => {
     }
     
     console.log('Connecting to MongoDB...');
+    
+    // Check if already connected
+    if (mongoose.connection.readyState === 1) {
+      console.log('MongoDB already connected');
+      return;
+    }
+    
     const conn = await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
       serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
       maxPoolSize: 5, // Limit connection pool size for serverless
     });
@@ -114,16 +122,16 @@ const connectDB = async () => {
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (err) {
     console.error('MongoDB connection error:', err.message);
-    if (process.env.NODE_ENV === 'production') {
-      throw err; // Let Vercel handle the error
-    } else {
-      process.exit(1);
-    }
+    throw err; // Always throw error in serverless environment
   }
 };
 
-// Initialize database connection
-connectDB();
+// Initialize database connection only if not already connected
+if (mongoose.connection.readyState === 0) {
+  connectDB().catch(err => {
+    console.error('Failed to connect to MongoDB:', err);
+  });
+}
 
 // Health check route
 app.get('/', (req, res) => {
@@ -153,13 +161,21 @@ app.get('/api/test-env', (req, res) => {
 
 // Define Routes with error handling
 try {
-  app.use('/api/auth', require('./routes/auth'));
-  app.use('/api/portfolios', require('./routes/portfolio'));
-  app.use('/api/projects', require('./routes/project'));
-  app.use('/api/contact', require('./routes/contact'));
-  app.use('/api/messages', require('./routes/contact')); // Add alias for contact to avoid ad blockers
+  const authRoutes = require('./routes/auth');
+  const portfolioRoutes = require('./routes/portfolio');
+  const projectRoutes = require('./routes/project');
+  const contactRoutes = require('./routes/contact');
+  
+  app.use('/api/auth', authRoutes);
+  app.use('/api/portfolios', portfolioRoutes);
+  app.use('/api/projects', projectRoutes);
+  app.use('/api/contact', contactRoutes);
+  app.use('/api/messages', contactRoutes); // Add alias for contact to avoid ad blockers
+  
+  console.log('All routes loaded successfully');
 } catch (err) {
   console.error('Error loading routes:', err.message);
+  console.error('Stack trace:', err.stack);
 }
 
 // Define PORT

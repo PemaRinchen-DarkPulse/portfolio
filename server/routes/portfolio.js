@@ -26,27 +26,10 @@ router.get('/', async (req, res) => {
     // Check if mongoose is connected
     if (!mongoose.connection || mongoose.connection.readyState !== 1) {
       console.error('MongoDB not connected, readyState:', mongoose.connection.readyState);
-      
-      // Return mock data for development/testing
-      const mockPortfolios = [
-        {
-          _id: "mock1",
-          title: "Sample Portfolio Item",
-          category: "Web Development",
-          content: "This is a sample portfolio item for testing purposes when database is not available.",
-          image: "/api/placeholder/400/300",
-          date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-          author: "System",
-          readTime: "2 min read",
-          likes: 0,
-          comments: [],
-          gallery: [],
-          createdAt: new Date()
-        }
-      ];
-      
-      console.log('Returning mock portfolio data');
-      return res.json(mockPortfolios);
+      return res.status(500).json({ 
+        msg: 'Database connection error',
+        error: 'Unable to connect to the database'
+      });
     }
     
     const portfolios = await Portfolio.find().sort({ createdAt: -1 });
