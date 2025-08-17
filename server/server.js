@@ -18,6 +18,7 @@ const corsOptions = {
   origin: [
     'http://localhost:5173',
     'http://localhost:3000',
+    'https://pemarinchen.vercel.app', // Add your deployed frontend URL
     'https://portfoliofrontend-six.vercel.app',
     'https://portfolio-frontend-six.vercel.app',
     'https://portfolio-pemarinchentrend.vercel.app',
@@ -59,6 +60,37 @@ app.use((req, res, next) => {
 });
 
 app.use(cors(corsOptions));
+
+// Additional CORS headers as fallback
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'https://pemarinchen.vercel.app',
+    'https://portfoliofrontend-six.vercel.app',
+    'https://portfolio-frontend-six.vercel.app',
+    'https://portfolio-pemarinchentrend.vercel.app',
+    'https://portfolio-git-main-pemarinchen-darkpulse.vercel.app',
+    'https://portfolio-pemarinchen-darkpulses-projects.vercel.app'
+  ];
+  
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-auth-token, Origin, X-Requested-With, Accept');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+  
+  next();
+});
 
 // Serve static files from the uploads directory (create directory if it doesn't exist)
 // In Vercel serverless environment, we can't create directories
