@@ -19,7 +19,10 @@ const corsOptions = {
     'http://localhost:5173',
     'http://localhost:3000',
     'https://portfoliofrontend-six.vercel.app',
-    'https://portfolio-frontend-six.vercel.app'
+    'https://portfolio-frontend-six.vercel.app',
+    'https://portfolio-pemarinchentrend.vercel.app',
+    'https://portfolio-git-main-pemarinchen-darkpulse.vercel.app',
+    'https://portfolio-pemarinchen-darkpulses-projects.vercel.app'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
