@@ -206,6 +206,33 @@
   color: #5a67d8;
 }
 
+/* Enhanced formatting for AI responses */
+.ai-message-content strong {
+  color: #2d3748;
+  font-weight: 700;
+}
+
+.ai-message-content br {
+  line-height: 1.8;
+}
+
+/* List styling within AI messages */
+.ai-message-content ul {
+  margin: 8px 0;
+  padding-left: 16px;
+}
+
+.ai-message-content li {
+  margin: 4px 0;
+  line-height: 1.4;
+}
+
+/* Better spacing for organized content */
+.ai-message-content p {
+  margin: 8px 0;
+  line-height: 1.6;
+}
+
 /* Modern Footer */
 .chat-footer {
   display: flex;

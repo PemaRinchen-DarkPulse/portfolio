@@ -151,15 +151,37 @@ const connectDB = async () => {
       await mongoose.connection.close();
     }
     
-    const conn = await mongoose.connect(process.env.MONGO_URI, {
-      serverSelectionTimeoutMS: 10000, // Increase timeout for serverless
-      socketTimeoutMS: 45000,
-      maxPoolSize: 10, // Increase pool size
-      bufferCommands: false, // Disable mongoose buffering
-    });
+    // Try Atlas connection first
+    try {
+      const conn = await mongoose.connect(process.env.MONGO_URI, {
+        serverSelectionTimeoutMS: 30000, // Increase timeout for slow networks
+        socketTimeoutMS: 45000,
+        maxPoolSize: 10,
+        bufferCommands: false,
+        retryWrites: true,
+        retryReads: true,
+        family: 4, // Force IPv4, some networks have IPv6 issues
+      });
+      
+      console.log(`MongoDB Connected: ${conn.connection.host}`);
+      return conn.connection;
+    } catch (atlasError) {
+      console.warn('Atlas connection failed, trying local MongoDB...', atlasError.message);
+      
+      // Fallback to local MongoDB for development
+      if (process.env.NODE_ENV === 'development') {
+        const localConn = await mongoose.connect('mongodb://localhost:27017/portfolio', {
+          serverSelectionTimeoutMS: 5000,
+          socketTimeoutMS: 45000,
+        });
+        
+        console.log('Connected to local MongoDB');
+        return localConn.connection;
+      } else {
+        throw atlasError;
+      }
+    }
     
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
-    return conn.connection;
   } catch (err) {
     console.error('MongoDB connection error:', err.message);
     throw err;
