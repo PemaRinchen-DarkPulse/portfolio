@@ -9,12 +9,48 @@ const addImageBaseUrl = require('../utils/imageUrlHelper');
 const { cacheMiddleware, invalidateCache } = require('../middleware/cache');
 
 // Health check for portfolio route
-router.get('/health', (req, res) => {
-  res.json({ 
-    message: 'Portfolio routes are working', 
-    timestamp: new Date().toISOString(),
-    mongooseState: mongoose.connection.readyState // 0=disconnected, 1=connected, 2=connecting, 3=disconnecting
-  });
+router.get('/health', async (req, res) => {
+  try {
+    const dbState = mongoose.connection.readyState;
+    const states = {
+      0: 'disconnected',
+      1: 'connected', 
+      2: 'connecting',
+      3: 'disconnecting'
+    };
+    
+    // Test database connection with a simple query
+    let testResult = null;
+    if (dbState === 1) {
+      try {
+        testResult = await Portfolio.countDocuments({});
+      } catch (testErr) {
+        testResult = `Error: ${testErr.message}`;
+      }
+    }
+    
+    res.json({ 
+      message: 'Portfolio routes are working', 
+      timestamp: new Date().toISOString(),
+      database: {
+        state: dbState,
+        status: states[dbState] || 'unknown',
+        host: mongoose.connection.host || 'not connected',
+        testQuery: testResult
+      },
+      environment: {
+        nodeEnv: process.env.NODE_ENV,
+        hasMongoUri: !!process.env.MONGO_URI,
+        mongoUriPrefix: process.env.MONGO_URI ? process.env.MONGO_URI.substring(0, 20) + '...' : 'not set'
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Health check failed',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // @route   GET /api/portfolios
@@ -35,8 +71,16 @@ router.get('/', async (req, res) => {
     // Enhanced database connection check for serverless with better error handling
     if (mongoose.connection.readyState !== 1) {
       console.log('MongoDB not connected, attempting to connect...');
+      console.log('Current connection state:', mongoose.connection.readyState);
+      console.log('MONGO_URI exists:', !!process.env.MONGO_URI);
+      
       try {
-        await mongoose.connect(process.env.MONGO_URI, {
+        const mongoUri = process.env.MONGO_URI;
+        if (!mongoUri) {
+          throw new Error('MONGO_URI environment variable is not set');
+        }
+        
+        await mongoose.connect(mongoUri, {
           serverSelectionTimeoutMS: 10000,
           socketTimeoutMS: 45000,
           connectTimeoutMS: 10000,
@@ -48,6 +92,11 @@ router.get('/', async (req, res) => {
         console.log('MongoDB connected successfully');
       } catch (connectErr) {
         console.error('Failed to connect to MongoDB:', connectErr.message);
+        console.error('MongoDB connection error details:', {
+          name: connectErr.name,
+          code: connectErr.code,
+          message: connectErr.message
+        });
         
         // Provide specific error messages based on error type
         if (connectErr.code === 'ESERVFAIL' || connectErr.code === 'ENOTFOUND') {
@@ -150,9 +199,16 @@ router.get('/', async (req, res) => {
   } catch (err) {
     console.error('Get portfolios error:', err);
     console.error('Error stack:', err.stack);
+    console.error('Error name:', err.name);
+    console.error('Error code:', err.code);
+    
+    // Send a more detailed error response for debugging
     res.status(500).json({ 
       message: 'Server error while fetching portfolio items',
-      error: err.message 
+      error: err.message || 'Unknown error occurred',
+      errorName: err.name,
+      errorCode: err.code,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
     });
   }
 });

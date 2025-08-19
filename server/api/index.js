@@ -114,6 +114,8 @@ const connectDB = async () => {
     }
     
     console.log('Connecting to MongoDB...');
+    console.log('Environment:', process.env.NODE_ENV);
+    console.log('MONGO_URI length:', process.env.MONGO_URI.length);
     
     // Check if already connected
     if (mongoose.connection.readyState === 1) {
@@ -121,32 +123,118 @@ const connectDB = async () => {
       return;
     }
     
+    // Close any existing connections
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.connection.close();
+    }
+    
     const conn = await mongoose.connect(process.env.MONGO_URI, {
-      serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
-      maxPoolSize: 5, // Limit connection pool size for serverless
+      serverSelectionTimeoutMS: 30000, // Increase timeout for DNS resolution issues
+      socketTimeoutMS: 45000,
+      connectTimeoutMS: 30000,
+      maxPoolSize: 5,
+      bufferCommands: false,
+      retryWrites: true,
+      family: 4, // Use IPv4 to avoid potential IPv6 DNS issues
     });
     
     console.log(`MongoDB Connected: ${conn.connection.host}`);
+    
+    // Set up connection event handlers
+    mongoose.connection.on('error', (err) => {
+      console.error('MongoDB connection error:', err);
+    });
+    
+    mongoose.connection.on('disconnected', () => {
+      console.log('MongoDB disconnected');
+    });
+    
+    return conn.connection;
   } catch (err) {
     console.error('MongoDB connection error:', err.message);
-    throw err; // Always throw error in serverless environment
+    console.error('Error details:', {
+      name: err.name,
+      code: err.code,
+      stack: err.stack
+    });
+    
+    // Provide specific error messages based on error type
+    if (err.code === 'ESERVFAIL' || err.code === 'ENOTFOUND') {
+      console.error('DNS Resolution Error - Network connectivity issues');
+    } else if (err.name === 'MongoServerSelectionError') {
+      console.error('Database connection timeout - Server unavailable');
+    }
+    
+    throw err;
   }
 };
 
-// Initialize database connection only if not already connected
-if (mongoose.connection.readyState === 0) {
-  connectDB().catch(err => {
-    console.error('Failed to connect to MongoDB:', err);
-  });
-}
+// Initialize database connection with retry logic
+const initializeDB = async () => {
+  let retries = 3;
+  
+  while (retries > 0) {
+    try {
+      if (mongoose.connection.readyState === 0) {
+        await connectDB();
+        console.log('Database initialization successful');
+        return;
+      } else {
+        console.log('Database already initialized');
+        return;
+      }
+    } catch (err) {
+      retries--;
+      console.error(`Database connection failed. Retries left: ${retries}`, err.message);
+      
+      if (retries === 0) {
+        console.error('All database connection attempts failed');
+        // Don't throw error to prevent serverless function from crashing
+        // but log it for debugging
+      } else {
+        // Wait before retry
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    }
+  }
+};
+
+// Initialize database connection
+initializeDB();
 
 // Health check route
 app.get('/', (req, res) => {
-  res.json({ 
-    message: 'API Running',
-    timestamp: new Date().toISOString(),
-    routes: ['/api/portfolios', '/api/projects', '/api/contact', '/api/auth']
-  });
+  try {
+    const dbState = mongoose.connection.readyState;
+    const states = {
+      0: 'disconnected',
+      1: 'connected', 
+      2: 'connecting',
+      3: 'disconnecting'
+    };
+    
+    res.json({ 
+      message: 'API Running',
+      timestamp: new Date().toISOString(),
+      database: {
+        state: dbState,
+        status: states[dbState] || 'unknown',
+        host: mongoose.connection.host || 'not connected'
+      },
+      environment: {
+        nodeEnv: process.env.NODE_ENV,
+        hasMongoUri: !!process.env.MONGO_URI,
+        mongoUriLength: process.env.MONGO_URI ? process.env.MONGO_URI.length : 0
+      },
+      routes: ['/api/portfolios', '/api/projects', '/api/contact', '/api/auth']
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Health check failed',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // API health check
@@ -180,8 +268,43 @@ app.get('/api/test-env', (req, res) => {
     hasMongoUri: !!process.env.MONGO_URI,
     hasJwtSecret: !!process.env.JWT_SECRET,
     mongoUriLength: process.env.MONGO_URI ? process.env.MONGO_URI.length : 0,
+    mongooseState: mongoose.connection.readyState,
     timestamp: new Date().toISOString()
   });
+});
+
+// Debug route for portfolio connection
+app.get('/api/debug-portfolios', async (req, res) => {
+  try {
+    const Portfolio = require('../models/Portfolio');
+    
+    // Check database connection
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        message: 'Database not connected',
+        connectionState: mongoose.connection.readyState,
+        hasMongoUri: !!process.env.MONGO_URI
+      });
+    }
+    
+    // Test portfolio query
+    const count = await Portfolio.countDocuments({});
+    
+    res.json({
+      message: 'Portfolio debug successful',
+      portfolioCount: count,
+      connectionState: mongoose.connection.readyState,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Portfolio debug failed',
+      error: error.message,
+      errorName: error.name,
+      connectionState: mongoose.connection.readyState,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // Define Routes with error handling
@@ -191,6 +314,25 @@ try {
   const projectRoutes = require('../routes/project');
   const contactRoutes = require('../routes/contact');
   const chatRoutes = require('../routes/chat');
+  
+  // Add database connection middleware for critical routes
+  app.use('/api/portfolios', async (req, res, next) => {
+    try {
+      // Ensure database connection before proceeding
+      if (mongoose.connection.readyState !== 1) {
+        console.log('Database not connected, attempting to reconnect...');
+        await connectDB();
+      }
+      next();
+    } catch (err) {
+      console.error('Database connection failed in middleware:', err.message);
+      res.status(503).json({
+        message: 'Database service unavailable',
+        error: 'Unable to connect to the database. Please try again later.',
+        suggestion: 'This might be a temporary network issue.'
+      });
+    }
+  });
   
   // Add logging middleware for API routes
   app.use('/api', (req, res, next) => {
