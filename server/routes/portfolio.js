@@ -6,6 +6,7 @@ const auth = require('../middleware/auth');
 const upload = require('../utils/fileUpload');
 const path = require('path');
 const addImageBaseUrl = require('../utils/imageUrlHelper');
+const { cacheMiddleware, invalidateCache } = require('../middleware/cache');
 
 // Health check for portfolio route
 router.get('/health', (req, res) => {
@@ -17,46 +18,135 @@ router.get('/health', (req, res) => {
 });
 
 // @route   GET /api/portfolios
-// @desc    Get all portfolio items
+// @desc    Get all portfolio items with pagination and optimization
 // @access  Public
+// Temporarily disable caching to test new content display
 router.get('/', async (req, res) => {
   try {
     console.log('Attempting to fetch portfolio items...');
     
-    // Simple database connection check for serverless
+    // Temporarily disable cache headers for debugging
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
+    
+    // Enhanced database connection check for serverless with better error handling
     if (mongoose.connection.readyState !== 1) {
       console.log('MongoDB not connected, attempting to connect...');
       try {
         await mongoose.connect(process.env.MONGO_URI, {
-          serverSelectionTimeoutMS: 5000,
+          serverSelectionTimeoutMS: 10000,
+          socketTimeoutMS: 45000,
+          connectTimeoutMS: 10000,
           maxPoolSize: 5,
+          bufferCommands: false,
+          retryWrites: true,
+          family: 4,
         });
         console.log('MongoDB connected successfully');
       } catch (connectErr) {
         console.error('Failed to connect to MongoDB:', connectErr.message);
-        return res.status(500).json({ 
-          msg: 'Database connection error',
-          error: 'Unable to connect to the database'
-        });
+        
+        // Provide specific error messages based on error type
+        if (connectErr.code === 'ESERVFAIL' || connectErr.code === 'ENOTFOUND') {
+          return res.status(503).json({ 
+            msg: 'Database service unavailable - DNS resolution failed',
+            error: 'Unable to reach the database server. Please check your network connection.',
+            suggestion: 'This might be a temporary network issue. Please try again in a few moments.'
+          });
+        } else if (connectErr.name === 'MongoServerSelectionError') {
+          return res.status(503).json({ 
+            msg: 'Database connection timeout',
+            error: 'Could not connect to database within the timeout period.',
+            suggestion: 'The database server might be temporarily unavailable. Please try again later.'
+          });
+        } else {
+          return res.status(500).json({ 
+            msg: 'Database connection error',
+            error: 'Unable to connect to the database',
+            suggestion: 'Please try again later or contact support if the issue persists.'
+          });
+        }
       }
     }
+
+    // Pagination parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Build query for filtering
+    let query = {};
+    if (req.query.category) {
+      query.category = req.query.category;
+    }
+
+    // Check if client wants preview mode (without large images)
+    const preview = req.query.preview === 'true';
     
-    const portfolios = await Portfolio.find().sort({ createdAt: -1 });
-    console.log(`Found ${portfolios.length} portfolio items`);
-    
-    // Convert Base64 images to data URLs for frontend consumption
-    const portfoliosWithDataUrls = portfolios.map(portfolio => {
-      const portfolioObj = portfolio.toObject();
+    if (preview) {
+      // For preview mode: get limited data but include content preview
+      const portfolios = await Portfolio.find(query)
+        .select('-image -gallery -comments') // Exclude heavy fields but keep content for preview
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .skip(skip)
+        .lean(); // Use lean() for better performance
+
+      // Create content previews on server side for better performance
+      const portfoliosWithPreviews = portfolios.map(portfolio => ({
+        ...portfolio,
+        content: portfolio.content ? portfolio.content.substring(0, 200) + '...' : '',
+        isPreview: true
+      }));
+
+      const total = await Portfolio.countDocuments(query);
       
-      // If image is stored as Base64, convert to data URL
-      if (portfolioObj.image && !portfolioObj.image.startsWith('data:') && !portfolioObj.image.startsWith('http')) {
-        portfolioObj.image = `data:${portfolioObj.imageType || 'image/jpeg'};base64,${portfolioObj.image}`;
-      }
+      res.json({
+        portfolios: portfoliosWithPreviews,
+        pagination: {
+          currentPage: page,
+          totalPages: Math.ceil(total / limit),
+          totalItems: total,
+          hasNext: page < Math.ceil(total / limit),
+          hasPrev: page > 1
+        }
+      });
+    } else {
+      // Full mode: include all data but with optimization
+      const portfolios = await Portfolio.find(query)
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .skip(skip)
+        .lean(); // Use lean() for better performance
+
+      const total = await Portfolio.countDocuments(query);
       
-      return portfolioObj;
-    });
-    
-    res.json(portfoliosWithDataUrls);
+      console.log(`Found ${portfolios.length} portfolio items`);
+      
+      // Convert Base64 images to data URLs for frontend consumption
+      const portfoliosWithDataUrls = portfolios.map(portfolio => {
+        // If image is stored as Base64, convert to data URL
+        if (portfolio.image && !portfolio.image.startsWith('data:') && !portfolio.image.startsWith('http')) {
+          portfolio.image = `data:${portfolio.imageType || 'image/jpeg'};base64,${portfolio.image}`;
+        }
+        
+        return portfolio;
+      });
+      
+      res.json({
+        portfolios: portfoliosWithDataUrls,
+        pagination: {
+          currentPage: page,
+          totalPages: Math.ceil(total / limit),
+          totalItems: total,
+          hasNext: page < Math.ceil(total / limit),
+          hasPrev: page > 1
+        }
+      });
+    }
   } catch (err) {
     console.error('Get portfolios error:', err);
     console.error('Error stack:', err.stack);
@@ -68,22 +158,22 @@ router.get('/', async (req, res) => {
 });
 
 // @route   GET /api/portfolios/:id
-// @desc    Get portfolio by ID
+// @desc    Get portfolio by ID with optimization
 // @access  Public
 router.get('/:id', async (req, res) => {
   try {
-    const portfolio = await Portfolio.findById(req.params.id);
+    // Use lean() for better performance and select only needed fields initially
+    const portfolio = await Portfolio.findById(req.params.id).lean();
     if (!portfolio) {
       return res.status(404).json({ msg: 'Portfolio not found' });
     }
     
     // Convert Base64 image to data URL for frontend consumption
-    const portfolioObj = portfolio.toObject();
-    if (portfolioObj.image && !portfolioObj.image.startsWith('data:') && !portfolioObj.image.startsWith('http')) {
-      portfolioObj.image = `data:${portfolioObj.imageType || 'image/jpeg'};base64,${portfolioObj.image}`;
+    if (portfolio.image && !portfolio.image.startsWith('data:') && !portfolio.image.startsWith('http')) {
+      portfolio.image = `data:${portfolio.imageType || 'image/jpeg'};base64,${portfolio.image}`;
     }
     
-    res.json(portfolioObj);
+    res.json(portfolio);
   } catch (err) {
     console.error('Get portfolio error:', err.message);
     if (err.kind === 'ObjectId') {
@@ -162,6 +252,9 @@ router.post('/', auth, async (req, res) => {
       // Return the image as data URL for frontend consumption
       image: `data:${portfolio.imageType};base64,${portfolio.image}`
     });
+
+    // Invalidate cache after creating new portfolio
+    invalidateCache(/^portfolios-/);
   } catch (err) {
     console.error('Create portfolio error:', err.message);
     res.status(500).json({ msg: 'Server error', error: err.message });
@@ -230,6 +323,9 @@ router.put('/:id', auth, async (req, res) => {
     }
     
     res.json(portfolioObj);
+
+    // Invalidate cache after updating portfolio
+    invalidateCache(/^portfolios-/);
   } catch (err) {
     console.error('Update portfolio error:', err.message);
     if (err.kind === 'ObjectId') {
@@ -252,6 +348,9 @@ router.delete('/:id', auth, async (req, res) => {
     // Delete portfolio
     await Portfolio.findByIdAndDelete(req.params.id);
     res.json({ msg: 'Portfolio removed' });
+
+    // Invalidate cache after deleting portfolio
+    invalidateCache(/^portfolios-/);
   } catch (err) {
     console.error('Delete portfolio error:', err.message);
     if (err.kind === 'ObjectId') {

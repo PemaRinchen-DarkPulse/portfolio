@@ -151,32 +151,66 @@ const connectDB = async () => {
       await mongoose.connection.close();
     }
     
-    // Try Atlas connection first
+    // Try Atlas connection with minimal, compatible settings
     try {
+      console.log('Attempting Atlas connection...');
       const conn = await mongoose.connect(process.env.MONGO_URI, {
-        serverSelectionTimeoutMS: 30000, // Increase timeout for slow networks
+        serverSelectionTimeoutMS: 30000, // Increase timeout for DNS resolution issues
         socketTimeoutMS: 45000,
-        maxPoolSize: 10,
+        connectTimeoutMS: 30000, // Add connection timeout
+        maxPoolSize: 5,
         bufferCommands: false,
         retryWrites: true,
-        retryReads: true,
-        family: 4, // Force IPv4, some networks have IPv6 issues
+        // Use IPv4 to avoid potential IPv6 DNS issues
+        family: 4,
+        // Removed deprecated options: useUnifiedTopology, useNewUrlParser
       });
       
       console.log(`MongoDB Connected: ${conn.connection.host}`);
+      
+      // Set up connection event handlers
+      mongoose.connection.on('error', (err) => {
+        console.error('MongoDB connection error:', err);
+      });
+      
+      mongoose.connection.on('disconnected', () => {
+        console.log('MongoDB disconnected');
+      });
+      
+      mongoose.connection.on('reconnected', () => {
+        console.log('MongoDB reconnected');
+      });
+      
       return conn.connection;
     } catch (atlasError) {
-      console.warn('Atlas connection failed, trying local MongoDB...', atlasError.message);
+      console.warn('Atlas connection failed:', atlasError.message);
+      
+      // If it's a DNS error, provide helpful troubleshooting info
+      if (atlasError.code === 'ESERVFAIL' || atlasError.code === 'ENOTFOUND') {
+        console.error('DNS Resolution Error - This could be due to:');
+        console.error('1. Network connectivity issues');
+        console.error('2. Firewall blocking MongoDB Atlas');
+        console.error('3. Incorrect MongoDB Atlas connection string');
+        console.error('4. MongoDB Atlas cluster might be paused or deleted');
+        console.error('5. DNS server issues');
+        console.error('Please check your network connection and MongoDB Atlas cluster status');
+      }
       
       // Fallback to local MongoDB for development
-      if (process.env.NODE_ENV === 'development') {
-        const localConn = await mongoose.connect('mongodb://localhost:27017/portfolio', {
-          serverSelectionTimeoutMS: 5000,
-          socketTimeoutMS: 45000,
-        });
-        
-        console.log('Connected to local MongoDB');
-        return localConn.connection;
+      if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV !== 'production') {
+        console.log('Attempting local MongoDB connection...');
+        try {
+          const localConn = await mongoose.connect('mongodb://localhost:27017/portfolio', {
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 45000,
+          });
+          
+          console.log('Connected to local MongoDB');
+          return localConn.connection;
+        } catch (localError) {
+          console.error('Local MongoDB connection also failed:', localError.message);
+          throw new Error(`Both Atlas and local MongoDB connections failed. Atlas: ${atlasError.message}, Local: ${localError.message}`);
+        }
       } else {
         throw atlasError;
       }
@@ -197,9 +231,21 @@ if (mongoose.connection.readyState === 0) {
 
 // Health check route
 app.get('/', (req, res) => {
+  const connectionState = mongoose.connection.readyState;
+  const states = {
+    0: 'disconnected',
+    1: 'connected', 
+    2: 'connecting',
+    3: 'disconnecting'
+  };
+  
   res.json({ 
     message: 'API Running',
     timestamp: new Date().toISOString(),
+    database: {
+      status: states[connectionState] || 'unknown',
+      host: mongoose.connection.host || 'not connected'
+    },
     routes: ['/api/portfolios', '/api/projects', '/api/contact', '/api/auth']
   });
 });
@@ -237,6 +283,71 @@ app.get('/api/test-env', (req, res) => {
     mongoUriLength: process.env.MONGO_URI ? process.env.MONGO_URI.length : 0,
     timestamp: new Date().toISOString()
   });
+});
+
+// Database connection test route
+app.get('/api/test-db', async (req, res) => {
+  try {
+    const connectionState = mongoose.connection.readyState;
+    const states = {
+      0: 'disconnected',
+      1: 'connected', 
+      2: 'connecting',
+      3: 'disconnecting'
+    };
+
+    if (connectionState !== 1) {
+      return res.status(503).json({
+        status: 'error',
+        message: 'Database not connected',
+        connectionState: states[connectionState],
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Try a simple database operation
+    const db = mongoose.connection.db;
+    const admin = db.admin();
+    const result = await admin.ping();
+    
+    res.json({
+      status: 'success',
+      message: 'Database connection is healthy',
+      connectionState: states[connectionState],
+      host: mongoose.connection.host,
+      dbName: mongoose.connection.name,
+      ping: result,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: 'Database connection test failed',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Cache management route for debugging
+app.get('/api/clear-cache', (req, res) => {
+  try {
+    // Import cache utilities
+    const { cache } = require('./middleware/cache');
+    cache.clear();
+    res.json({
+      status: 'success',
+      message: 'Cache cleared successfully',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to clear cache',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // Define Routes with error handling

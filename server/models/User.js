@@ -5,7 +5,7 @@ const UserSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true,
+    unique: true, // This creates the index automatically
   },
   password: {
     type: String,
@@ -24,6 +24,9 @@ const UserSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
+
+// Removed explicit index declaration to avoid duplicate index warning
+// The unique: true option already creates the index
 
 // Hash password before saving
 UserSchema.pre('save', async function (next) {

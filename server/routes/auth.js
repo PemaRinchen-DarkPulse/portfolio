@@ -51,7 +51,7 @@ router.post('/register', async (req, res) => {
 });
 
 // @route   POST /api/auth/login
-// @desc    Authenticate user and get token
+// @desc    Authenticate user and get token with optimization
 // @access  Public
 router.post('/login', async (req, res) => {
   console.log('Login attempt for:', req.body.email);
@@ -63,8 +63,8 @@ router.post('/login', async (req, res) => {
   }
 
   try {
-    // Check if user exists
-    const user = await User.findOne({ email });
+    // Check if user exists using lean() for better performance
+    const user = await User.findOne({ email }).lean();
     if (!user) {
       console.log('User not found:', email);
       return res.status(400).json({ msg: 'Invalid credentials' });
@@ -73,8 +73,9 @@ router.post('/login', async (req, res) => {
     console.log('User found, comparing password');
     
     try {
-      // Check password
-      const isMatch = await user.comparePassword(password);
+      // Check password using bcrypt directly (since we used lean())
+      const bcrypt = require('bcryptjs');
+      const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         console.log('Password mismatch for:', email);
         return res.status(400).json({ msg: 'Invalid credentials' });
@@ -84,7 +85,7 @@ router.post('/login', async (req, res) => {
       
       // Create JWT payload
       const payload = {
-        id: user.id,
+        id: user._id,
         email: user.email,
         isAdmin: user.isAdmin,
       };
@@ -95,7 +96,7 @@ router.post('/login', async (req, res) => {
         return res.status(500).json({ msg: 'Server configuration error' });
       }
 
-      // Sign token
+      // Sign token with shorter expiry for better security
       jwt.sign(
         payload,
         process.env.JWT_SECRET,

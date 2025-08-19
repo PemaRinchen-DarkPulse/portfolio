@@ -74,4 +74,9 @@ const PortfolioSchema = new mongoose.Schema({
   },
 });
 
+// Add indexes for better query performance
+PortfolioSchema.index({ createdAt: -1 }); // For sorting by creation date
+PortfolioSchema.index({ category: 1 }); // For filtering by category
+PortfolioSchema.index({ title: 'text', content: 'text' }); // For text search
+
 module.exports = mongoose.model('Portfolio', PortfolioSchema);

@@ -2,27 +2,93 @@ const express = require('express');
 const router = express.Router();
 const Project = require('../models/Project');
 const auth = require('../middleware/auth');
+const { cacheMiddleware, invalidateCache } = require('../middleware/cache');
 
 // @route   GET /api/projects
-// @desc    Get all projects
+// @desc    Get all projects with pagination and optimization
 // @access  Public
+// Temporarily disable caching to test new content display
 router.get('/', async (req, res) => {
   try {
-    const projects = await Project.find().sort({ createdAt: -1 });
-    
-    // Convert Base64 images to data URLs for frontend consumption
-    const projectsWithDataUrls = projects.map(project => {
-      const projectObj = project.toObject();
-      
-      // If image is stored as Base64, convert to data URL
-      if (projectObj.image && !projectObj.image.startsWith('data:') && !projectObj.image.startsWith('http')) {
-        projectObj.image = `data:${projectObj.imageType || 'image/jpeg'};base64,${projectObj.image}`;
-      }
-      
-      return projectObj;
+    // Temporarily disable cache headers for debugging
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
     });
+    // Pagination parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Build query for filtering
+    let query = {};
+    if (req.query.category) {
+      query.category = req.query.category;
+    }
+
+    // Check if client wants preview mode (without large images)
+    const preview = req.query.preview === 'true';
     
-    res.json(projectsWithDataUrls);
+    if (preview) {
+      // For preview mode: get limited data but include description preview
+      const projects = await Project.find(query)
+        .select('-image') // Exclude heavy image field
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .skip(skip)
+        .lean(); // Use lean() for better performance
+
+      // Create description previews on server side for better performance
+      const projectsWithPreviews = projects.map(project => ({
+        ...project,
+        description: project.description ? project.description.substring(0, 150) + '...' : '',
+        isPreview: true
+      }));
+
+      const total = await Project.countDocuments(query);
+      
+      res.json({
+        projects: projectsWithPreviews,
+        pagination: {
+          currentPage: page,
+          totalPages: Math.ceil(total / limit),
+          totalItems: total,
+          hasNext: page < Math.ceil(total / limit),
+          hasPrev: page > 1
+        }
+      });
+    } else {
+      // Full mode: include all data but with optimization
+      const projects = await Project.find(query)
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .skip(skip)
+        .lean(); // Use lean() for better performance
+
+      const total = await Project.countDocuments(query);
+      
+      // Convert Base64 images to data URLs for frontend consumption
+      const projectsWithDataUrls = projects.map(project => {
+        // If image is stored as Base64, convert to data URL
+        if (project.image && !project.image.startsWith('data:') && !project.image.startsWith('http')) {
+          project.image = `data:${project.imageType || 'image/jpeg'};base64,${project.image}`;
+        }
+        
+        return project;
+      });
+      
+      res.json({
+        projects: projectsWithDataUrls,
+        pagination: {
+          currentPage: page,
+          totalPages: Math.ceil(total / limit),
+          totalItems: total,
+          hasNext: page < Math.ceil(total / limit),
+          hasPrev: page > 1
+        }
+      });
+    }
   } catch (err) {
     console.error('Get projects error:', err.message);
     res.status(500).send('Server error');
@@ -30,22 +96,22 @@ router.get('/', async (req, res) => {
 });
 
 // @route   GET /api/projects/:id
-// @desc    Get project by ID
+// @desc    Get project by ID with optimization
 // @access  Public
 router.get('/:id', async (req, res) => {
   try {
-    const project = await Project.findById(req.params.id);
+    // Use lean() for better performance
+    const project = await Project.findById(req.params.id).lean();
     if (!project) {
       return res.status(404).json({ msg: 'Project not found' });
     }
     
     // Convert Base64 image to data URL for frontend consumption
-    const projectObj = project.toObject();
-    if (projectObj.image && !projectObj.image.startsWith('data:') && !projectObj.image.startsWith('http')) {
-      projectObj.image = `data:${projectObj.imageType || 'image/jpeg'};base64,${projectObj.image}`;
+    if (project.image && !project.image.startsWith('data:') && !project.image.startsWith('http')) {
+      project.image = `data:${project.imageType || 'image/jpeg'};base64,${project.image}`;
     }
     
-    res.json(projectObj);
+    res.json(project);
   } catch (err) {
     console.error('Get project error:', err.message);
     if (err.kind === 'ObjectId') {
@@ -118,6 +184,9 @@ router.post('/', auth, async (req, res) => {
     }
     
     res.json(projectObj);
+
+    // Invalidate cache after creating new project
+    invalidateCache(/^projects-/);
   } catch (err) {
     console.error('Create project error:', err.message);
     res.status(500).json({ msg: 'Server error', error: err.message });
@@ -184,6 +253,9 @@ router.put('/:id', auth, async (req, res) => {
     }
     
     res.json(projectObj);
+
+    // Invalidate cache after updating project
+    invalidateCache(/^projects-/);
   } catch (err) {
     console.error('Update project error:', err.message);
     if (err.kind === 'ObjectId') {
@@ -206,6 +278,9 @@ router.delete('/:id', auth, async (req, res) => {
     // Delete project
     await Project.findByIdAndDelete(req.params.id);
     res.json({ msg: 'Project removed' });
+
+    // Invalidate cache after deleting project
+    invalidateCache(/^projects-/);
   } catch (err) {
     console.error('Delete project error:', err.message);
     if (err.kind === 'ObjectId') {

@@ -4,7 +4,7 @@ import API_BASE_URL from './api.js';
 // Create axios instance with CORS configuration
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 30000, // Increase timeout to 30 seconds for better reliability
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',

@@ -15,15 +15,27 @@ const ProjectList = () => {
   const [animateCards, setAnimateCards] = useState(false);
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState(null);
   const { isAuthenticated, token } = useContext(AuthContext);
 
-  // Fetch projects from API
+  // Fetch projects from API with optimization
   useEffect(() => {
     const fetchProjects = async () => {
       try {
         setIsLoading(true);
         setError(null);
-        const data = await projectAPI.getAll();
+        
+        // For now, fetch full data to ensure content displays properly
+        const response = await projectAPI.getAll({ 
+          page: currentPage, 
+          limit: 12,
+          category: selectedCategory === "All" ? undefined : selectedCategory
+        });
+        
+        const data = response.projects || response;
+        setPagination(response.pagination);
+        
         setProjects(data);
         setFilteredProjects(data);
         
@@ -40,19 +52,13 @@ const ProjectList = () => {
     };
 
     fetchProjects();
-  }, []);
+  }, [currentPage, selectedCategory]);
 
   // Filter projects based on category
   useEffect(() => {
-    let result = projects;
-    
-    // Filter by category
-    if (selectedCategory !== "All") {
-      result = result.filter(project => project.category === selectedCategory);
-    }
-    
-    setFilteredProjects(result);
-  }, [selectedCategory, projects]);
+    // Filtering is now handled server-side via the API call
+    setFilteredProjects(projects);
+  }, [projects]);
   // Get unique categories from projects
   const categories = ["All", ...new Set(projects.map(project => project.category))];
   

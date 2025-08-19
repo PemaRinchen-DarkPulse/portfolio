@@ -8,6 +8,11 @@ import LoadingSpinner from '../../shared/LoadingSpinner';
 
 // Function to trim content to approximately three lines
 const getContentPreview = (content, maxLength = 120) => {
+  // Handle undefined or null content
+  if (!content || typeof content !== 'string') {
+    return 'No preview available...';
+  }
+  
   // Remove markdown headers
   let plainContent = content.replace(/#+\s+[^\n]+/g, '');
   
@@ -45,20 +50,37 @@ const Portfolio = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState(null);
+  const [loadingFullImages, setLoadingFullImages] = useState(false);
   const { isAuthenticated, token } = useContext(AuthContext);
   
-  // Fetch portfolio items from API
+  // Fetch portfolio items from API with optimization
   useEffect(() => {
     const fetchPortfolioItems = async () => {
       try {
         setIsLoading(true);
         setError(null);
-        const data = await portfolioAPI.getAll();
+        
+        // For now, fetch full data to ensure content displays properly
+        // We can re-enable preview mode once content display is working
+        const response = await portfolioAPI.getAll({ 
+          page: currentPage, 
+          limit: 10,
+          category: selectedCategory === "All" ? undefined : selectedCategory
+        });
+        
+        let data = response.portfolios || response;
+        setPagination(response.pagination);
         
         // Process portfolio items to include content previews
         const itemsWithPreviews = data.map(item => ({
           ...item,
-          contentPreview: getContentPreview(item.content)
+          // Always ensure we have content preview, fallback to empty string if content is missing
+          contentPreview: item.content 
+            ? getContentPreview(item.content)
+            : 'No content available',
+          isPreview: false
         }));
         
         console.log('Portfolio items with IDs:', itemsWithPreviews.map(item => ({ 
@@ -68,6 +90,31 @@ const Portfolio = () => {
         })));
         
         setPortfolioItems(itemsWithPreviews);
+        
+        // Optionally load full images in background if user is likely to need them
+        // This is commented out to prioritize speed - images load when needed
+        // setTimeout(async () => {
+        //   if (!loadingFullImages) {
+        //     setLoadingFullImages(true);
+        //     try {
+        //       const fullResponse = await portfolioAPI.getAll({ 
+        //         page: currentPage, 
+        //         limit: 10,
+        //         category: selectedCategory === "All" ? undefined : selectedCategory
+        //       });
+        //       const fullData = fullResponse.portfolios || fullResponse;
+        //       setPortfolioItems(fullData.map(item => ({
+        //         ...item,
+        //         contentPreview: getContentPreview(item.content),
+        //         isPreview: false
+        //       })));
+        //     } catch (err) {
+        //       console.warn('Failed to load full images in background:', err);
+        //     }
+        //     setLoadingFullImages(false);
+        //   }
+        // }, 2000);
+        
       } catch (error) {
         console.error('Error fetching portfolio items:', error);
         setError('Failed to load portfolio items. Please try again later.');
@@ -77,7 +124,7 @@ const Portfolio = () => {
     };
 
     fetchPortfolioItems();
-  }, []);
+  }, [currentPage, selectedCategory]);
   
   // Filter items when category changes
   useEffect(() => {
@@ -86,13 +133,19 @@ const Portfolio = () => {
     } else {
       setFilteredItems(portfolioItems.filter(item => item.category === selectedCategory));
     }
-  }, [selectedCategory, portfolioItems]);
+  }, [portfolioItems]); // Removed selectedCategory dependency as it's handled in main fetch
 
   const categories = ["All", ...new Set(portfolioItems.map(item => item.category))];
 
   // Handle category selection
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
+    setCurrentPage(1); // Reset to first page when changing category
+  };
+
+  // Handle page change
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
   };
   
   // Handle adding a new portfolio item with Base64 image

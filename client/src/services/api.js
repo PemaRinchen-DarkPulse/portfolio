@@ -21,19 +21,40 @@ export const sendContactMessage = async (contactData) => {
 
 // Portfolio API
 export const portfolioAPI = {
-  // Get all portfolio items
-  getAll: async () => {
+  // Get all portfolio items with pagination and preview mode
+  getAll: async (options = {}) => {
     try {
       console.log('Fetching portfolio items...');
-      const response = await axiosInstance.get('/api/portfolios');
+      
+      // Build query parameters
+      const params = new URLSearchParams();
+      if (options.page) params.append('page', options.page);
+      if (options.limit) params.append('limit', options.limit);
+      if (options.category) params.append('category', options.category);
+      if (options.preview) params.append('preview', 'true');
+      
+      const queryString = params.toString() ? `?${params.toString()}` : '';
+      const response = await axiosInstance.get(`/api/portfolios${queryString}`);
       
       console.log('Portfolio API response status:', response.status);
-      console.log('Portfolio items fetched successfully:', response.data.length, 'items');
-      return response.data;
+      
+      // Handle both paginated and non-paginated responses
+      if (response.data.portfolios) {
+        console.log('Portfolio items fetched successfully:', response.data.portfolios.length, 'items');
+        return response.data; // Return full response with pagination info
+      } else {
+        console.log('Portfolio items fetched successfully:', response.data.length, 'items');
+        return { portfolios: response.data, pagination: null }; // Legacy format
+      }
     } catch (error) {
       console.error('Get portfolio items error:', error);
       throw error;
     }
+  },
+
+  // Get portfolio items for preview (without images)
+  getPreview: async (options = {}) => {
+    return portfolioAPI.getAll({ ...options, preview: true });
   },
 
   // Get portfolio item by ID
@@ -125,28 +146,47 @@ export const portfolioAPI = {
 
 // Project API
 export const projectAPI = {
-  // Get all projects
-  getAll: async () => {
+  // Get all projects with pagination and preview mode
+  getAll: async (options = {}) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/projects`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch projects');
+      console.log('Fetching projects...');
+      
+      // Build query parameters
+      const params = new URLSearchParams();
+      if (options.page) params.append('page', options.page);
+      if (options.limit) params.append('limit', options.limit);
+      if (options.category) params.append('category', options.category);
+      if (options.preview) params.append('preview', 'true');
+      
+      const queryString = params.toString() ? `?${params.toString()}` : '';
+      const response = await axiosInstance.get(`/api/projects${queryString}`);
+      
+      console.log('Project API response status:', response.status);
+      
+      // Handle both paginated and non-paginated responses
+      if (response.data.projects) {
+        console.log('Projects fetched successfully:', response.data.projects.length, 'items');
+        return response.data; // Return full response with pagination info
+      } else {
+        console.log('Projects fetched successfully:', response.data.length, 'items');
+        return { projects: response.data, pagination: null }; // Legacy format
       }
-      return await response.json();
     } catch (error) {
       console.error('Get projects error:', error);
       throw error;
     }
   },
 
+  // Get projects for preview (without images)
+  getPreview: async (options = {}) => {
+    return projectAPI.getAll({ ...options, preview: true });
+  },
+
   // Get project by ID
   getById: async (id) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/projects/${id}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch project');
-      }
-      return await response.json();
+      const response = await axiosInstance.get(`/api/projects/${id}`);
+      return response.data;
     } catch (error) {
       console.error('Get project error:', error);
       throw error;
@@ -191,18 +231,14 @@ export const projectAPI = {
   },
 
   // Delete project
-  delete: async (id, token) => {
+  deleteProject: async (id, token) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/projects/${id}`, {
-        method: 'DELETE',
+      const response = await axiosInstance.delete(`/api/projects/${id}`, {
         headers: {
-          'x-auth-token': token, // Changed from 'Authorization: Bearer ${token}' to match server expectation
+          'x-auth-token': token,
         },
       });
-      if (!response.ok) {
-        throw new Error('Failed to delete project');
-      }
-      return await response.json();
+      return response.data;
     } catch (error) {
       console.error('Delete project error:', error);
       throw error;
