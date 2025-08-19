@@ -1,5 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaEnvelope, FaLock, FaSignInAlt, FaEye, FaEyeSlash } from 'react-icons/fa';
 import axiosInstance from '../../config/axios.js';
 import { AuthContext } from './AuthContext';
 import './Auth.css';
@@ -11,6 +12,7 @@ const Login = () => {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
 
@@ -87,49 +89,88 @@ const Login = () => {
 
   return (
     <div className="login-container">
-      <div className="login-form-container">
-        <h2>Login to Upload Content</h2>
-        <p>Only administrators can log in to add new portfolios and projects</p>
-        
-        {error && <div className="alert alert-danger">{error}</div>}
-        
-        <form onSubmit={onSubmit} className="login-form">
-          <div className="form-group">
-            <label htmlFor="email">Email Address</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={email}
-              onChange={onChange}
-              required
-              placeholder="Enter your email"
-              className="form-control"
-            />
+      <div className="login-background">
+        <div className="login-form-container">
+          <div className="login-header">
+            <div className="login-icon">
+              <FaSignInAlt />
+            </div>
+            <h2>Admin Portal</h2>
+            <p>Secure access for content management</p>
           </div>
           
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password" 
-              value={password}
-              onChange={onChange}
-              required
-              placeholder="Enter your password"
-              className="form-control"
-            />
-          </div>
+          {error && (
+            <div className="alert alert-danger">
+              <div className="alert-content">
+                <span className="alert-icon">⚠️</span>
+                <span>{error}</span>
+              </div>
+            </div>
+          )}
           
-          <button 
-            type="submit" 
-            className="btn login-btn"
-            disabled={loading}
-          >
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
+          <form onSubmit={onSubmit} className="login-form">
+            <div className="form-group">
+              <label htmlFor="email">Email Address</label>
+              <div className="input-wrapper">
+                <FaEnvelope className="input-icon" />
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={email}
+                  onChange={onChange}
+                  required
+                  placeholder="Enter your email"
+                  className="form-control email-input"
+                />
+              </div>
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="password">Password</label>
+              <div className="input-wrapper password-wrapper">
+                <FaLock className="input-icon" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  name="password" 
+                  value={password}
+                  onChange={onChange}
+                  required
+                  placeholder="Enter your password"
+                  className="form-control password-input"
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
+            </div>
+            
+            <button 
+              type="submit" 
+              className="login-btn"
+              disabled={loading}
+            >
+              <span className="btn-content">
+                <FaSignInAlt className="btn-icon" />
+                {loading ? 'Authenticating...' : 'Sign In'}
+              </span>
+              {loading && <div className="loading-spinner"></div>}
+            </button>
+          </form>
+          
+          <div className="login-footer">
+            <div className="security-badge">
+              <span>🔒</span>
+              <span>Secured with JWT</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

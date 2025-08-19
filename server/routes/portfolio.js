@@ -99,7 +99,7 @@ router.get('/:id', async (req, res) => {
 router.post('/', auth, async (req, res) => {
   try {
     // Get form data from request body
-    const { title, category, content, readTime, gallery, image, imageType } = req.body;
+    const { title, category, content, gallery, image, imageType } = req.body;
     
     // Validate required fields
     if (!title || !category || !content) {
@@ -136,6 +136,9 @@ router.post('/', auth, async (req, res) => {
       return res.status(400).json({ msg: 'Image size too large. Maximum 5MB allowed.' });
     }
     
+    // Calculate read time based on content length (1 minute per 1000 characters)
+    const readTime = `${Math.max(1, Math.ceil(content.length / 1000))} min read`;
+    
     // Create new portfolio item
     const newPortfolio = new Portfolio({
       title,
@@ -144,6 +147,7 @@ router.post('/', auth, async (req, res) => {
       image: imageData, // Store Base64 string
       imageType: mimeType,
       imageSize: imageSize,
+      author: req.user.email, // Use authenticated user's email
       readTime,
       gallery: gallery || [],
     });
@@ -175,11 +179,14 @@ router.put('/:id', auth, async (req, res) => {
     }
 
     // Update fields
-    const { title, category, content, image, imageType, readTime, gallery } = req.body;
+    const { title, category, content, image, imageType, gallery } = req.body;
     if (title) portfolio.title = title;
     if (category) portfolio.category = category;
-    if (content) portfolio.content = content;
-    if (readTime) portfolio.readTime = readTime;
+    if (content) {
+      portfolio.content = content;
+      // Auto-calculate read time when content is updated
+      portfolio.readTime = `${Math.max(1, Math.ceil(content.length / 1000))} min read`;
+    }
     if (gallery) portfolio.gallery = gallery;
     
     // Handle image update

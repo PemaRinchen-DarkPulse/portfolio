@@ -20,9 +20,9 @@ const ProjectSchema = new mongoose.Schema({
   imageSize: {
     type: Number, // Store file size in bytes for reference
   },
-  date: {
-    type: String,
-    default: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long' }),
+  submissionDate: {
+    type: Date,
+    default: Date.now,
   },
   demoLink: {
     type: String,

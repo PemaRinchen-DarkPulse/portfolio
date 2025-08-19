@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaFacebook, FaInstagram, FaEnvelope } from "react-icons/fa";
 import Image from "../../../assets/images/home.jpg";
 
 const Home = () => {
@@ -85,7 +85,7 @@ const Home = () => {
             <h5>Social Links:</h5>
             <div className="social-icons">
               <a
-                href="https://github.com/yourusername"
+                href="https://github.com/PemaRinchen-DarkPulse"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-dark me-4"
@@ -93,7 +93,7 @@ const Home = () => {
                 <FaGithub size={28} />
               </a>
               <a
-                href="https://linkedin.com/in/yourusername"
+                href="https://www.linkedin.com/in/pema-rinchen-305558264/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary me-4"
@@ -101,16 +101,24 @@ const Home = () => {
                 <FaLinkedin size={28} />
               </a>
               <a
-                href="https://twitter.com/yourusername"
+                href="https://www.facebook.com/BlazePknight"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-info me-4"
               >
-                <FaTwitter size={28} />
+                <FaFacebook size={28} />
               </a>
               <a
-                href="mailto:your.email@example.com"
+                href="https://www.instagram.com/blazepknight/"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-danger me-4"
+              >
+                <FaInstagram size={28} />
+              </a>
+              <a
+                href="mailto:pemarinchen12.31.2002@gmail.com"
+                className="text-secondary me-4"
               >
                 <FaEnvelope size={28} />
               </a>

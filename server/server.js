@@ -156,7 +156,6 @@ const connectDB = async () => {
       socketTimeoutMS: 45000,
       maxPoolSize: 10, // Increase pool size
       bufferCommands: false, // Disable mongoose buffering
-      bufferMaxEntries: 0, // Disable mongoose buffering
     });
     
     console.log(`MongoDB Connected: ${conn.connection.host}`);

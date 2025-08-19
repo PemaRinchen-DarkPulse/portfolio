@@ -374,7 +374,7 @@ const Contact = () => {
                 <h6 style={styles.socialSectionH6}>FOLLOW ME</h6>
                 <div style={mobileStyles.socialLinks}>
                   <a
-                    href="https://instagram.com"
+                    href="https://www.instagram.com/blazepknight/"
                     target="_blank"
                     rel="noopener noreferrer"
                     style={styles.socialLinkA}
@@ -384,7 +384,7 @@ const Contact = () => {
                     <FaInstagram size={24} />
                   </a>
                   <a
-                    href="https://facebook.com"
+                    href="https://www.facebook.com/BlazePknight"
                     target="_blank"
                     rel="noopener noreferrer"
                     style={styles.socialLinkA}
@@ -394,7 +394,7 @@ const Contact = () => {
                     <FaFacebookF size={24} />
                   </a>
                   <a
-                    href="https://linkedin.com"
+                    href="https://www.linkedin.com/in/pema-rinchen-305558264/"
                     target="_blank"
                     rel="noopener noreferrer"
                     style={styles.socialLinkA}
@@ -404,7 +404,7 @@ const Contact = () => {
                     <FaLinkedinIn size={24} />
                   </a>
                   <a
-                    href="https://github.com"
+                    href="https://github.com/PemaRinchen-DarkPulse"
                     target="_blank"
                     rel="noopener noreferrer"
                     style={styles.socialLinkA}

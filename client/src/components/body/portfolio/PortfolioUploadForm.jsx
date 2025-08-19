@@ -1,20 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { FaUpload, FaParagraph, FaTimes } from 'react-icons/fa';
+import { AuthContext } from '../../auth/AuthContext';
 
 const PortfolioUploadForm = ({ onClose, onSubmit }) => {
+  const { user } = useContext(AuthContext);
+  
   const [formData, setFormData] = useState({
     title: '',
     category: '',
     content: '',
-    image: '',
-    author: '',
-    readTime: ''
+    image: ''
   });
   
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [newCategory, setNewCategory] = useState('');
   const [showNewCategory, setShowNewCategory] = useState(false);
+  const [showCategoryError, setShowCategoryError] = useState(false);
   
   const categories = ["Poetry", "Blog", "Short Story", "Photography", "Article", "Other"];
   
@@ -109,6 +111,7 @@ const PortfolioUploadForm = ({ onClose, onSubmit }) => {
       ...prevData,
       category: category
     }));
+    setShowCategoryError(false); // Clear error when category is selected
   };
   
   const handleSaveNewCategory = () => {
@@ -118,13 +121,20 @@ const PortfolioUploadForm = ({ onClose, onSubmit }) => {
         category: newCategory.trim()
       }));
       setShowNewCategory(false);
+      setShowCategoryError(false); // Clear error when category is saved
     }
   };
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Validate required fields
-    if (!formData.title || !formData.category || !formData.content || !formData.image) {
+    // Check for category first and show error if missing
+    if (!formData.category) {
+      setShowCategoryError(true);
+      return;
+    }
+    
+    // Validate other required fields
+    if (!formData.title || !formData.content || !formData.image) {
       alert('Please fill in all required fields and select an image');
       return;
     }
@@ -136,8 +146,8 @@ const PortfolioUploadForm = ({ onClose, onSubmit }) => {
       content: formData.content,
       image: formData.image, // This is now Base64 data URL
       imageType: formData.imageType,
-      author: formData.author || "Anonymous",
-      readTime: formData.readTime || `${Math.max(1, Math.ceil(formData.content.length / 1000))} min read`,
+      author: user?.email || "Anonymous",
+      readTime: `${Math.max(1, Math.ceil(formData.content.length / 1000))} min read`,
       gallery: formData.category === "Photography" ? [] : []
     };
     
@@ -205,8 +215,8 @@ const PortfolioUploadForm = ({ onClose, onSubmit }) => {
                     value={formData.category} 
                     required 
                   />
-                  {!formData.category && (
-                    <small style={{ color: '#e53e3e', marginTop: '5px', display: 'block' }}>
+                  {showCategoryError && !formData.category && (
+                    <small style={{ color: '#e53e3e', marginTop: '8px', display: 'block', fontSize: '0.875rem' }}>
                       Please select a category
                     </small>
                   )}
@@ -244,7 +254,7 @@ const PortfolioUploadForm = ({ onClose, onSubmit }) => {
               )}
             </div>
           </div>          <div className="form-group">
-            <label htmlFor="image">Image Upload</label>
+            <label htmlFor="image">Image Upload*</label>
             <div className="image-upload-container">
               <input 
                 type="file" 
@@ -269,38 +279,16 @@ const PortfolioUploadForm = ({ onClose, onSubmit }) => {
               {imagePreview && (
                 <div className="image-preview">
                   <img src={imagePreview} alt="Preview" />
-                  <p className="image-info">This image will be saved to the server</p>
                 </div>
               )}
               {!imagePreview && (
-                <p className="image-info">No image selected (a default image will be used)</p>
+                <div className="image-info">
+                  No image selected. Please choose an image for your portfolio item.
+                </div>
               )}
             </div>
           </div>
           
-          <div className="form-group">
-            <label htmlFor="author">Author</label>
-            <input 
-              type="text" 
-              id="author" 
-              name="author" 
-              value={formData.author}
-              onChange={handleChange} 
-              placeholder="Enter author name (optional)"
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="readTime">Read Time</label>
-            <input 
-              type="text" 
-              id="readTime" 
-              name="readTime" 
-              value={formData.readTime}
-              onChange={handleChange} 
-              placeholder="e.g. '5 min read' (optional, will be auto-calculated)"
-            />
-          </div>
             <div className="form-group">
             <label htmlFor="content">Content*</label>
             <div className="content-input-wrapper">

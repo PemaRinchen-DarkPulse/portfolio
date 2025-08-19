@@ -64,11 +64,11 @@ function Layout() {
         </div>
       )}
       <div
-        className={`col-${isSmallScreen ? '12' : '10'} ${isSmallScreen ? 'my-0' : 'my-3'} ${isSmallScreen ? '' : 'me-5'}`}
+        className={`col-${isSmallScreen ? '12' : '10'} ${isSmallScreen ? 'my-0' : 'my-3'}`}
         style={{
           position: 'relative',
-          marginLeft: isSmallScreen ? '0px' : '30px',
-          marginRight: isSmallScreen ? '0px' : undefined,
+          marginLeft: isSmallScreen ? '0px' : '60px',
+          marginRight: isSmallScreen ? '0px' : '60px',
           backgroundColor: '#f4f4f9',
           borderRadius: isSmallScreen ? '0' : '15px',
           boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)',

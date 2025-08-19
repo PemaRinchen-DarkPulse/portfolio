@@ -592,10 +592,10 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 - 📧 Contact: pemarinchen12.31.2002@gmail.com
 
 ### Connect With Me
-- 💼 [LinkedIn](https://linkedin.com/in/pema-rinchen)
+- 💼 [LinkedIn](https://www.linkedin.com/in/pema-rinchen-305558264/)
 - 🐙 [GitHub](https://github.com/PemaRinchen-DarkPulse)
-- 📸 [Instagram](https://instagram.com/blazepknight)
-- 📘 [Facebook](https://facebook.com/BlazePknight)
+- 📸 [Instagram](https://www.instagram.com/blazepknight/)
+- 📘 [Facebook](https://www.facebook.com/BlazePknight)
 
 ---
 

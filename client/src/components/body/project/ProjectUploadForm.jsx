@@ -29,7 +29,6 @@ const ProjectUploadForm = ({ onClose, onSubmit }) => {  const [formData, setForm
     image: '',
     imagePreview: null,
     imageName: '',
-    date: '',
     demoLink: '',
     githubLink: '',
     category: '',
@@ -39,6 +38,7 @@ const ProjectUploadForm = ({ onClose, onSubmit }) => {  const [formData, setForm
   const [techInput, setTechInput] = useState('');
   const [newCategory, setNewCategory] = useState('');
   const [showNewCategory, setShowNewCategory] = useState(false);
+  const [showCategoryError, setShowCategoryError] = useState(false);
   
   const categories = ["Web App", "Mobile App", "AI/ML", "Finance", "Game", "Other"];
   
@@ -55,6 +55,7 @@ const ProjectUploadForm = ({ onClose, onSubmit }) => {  const [formData, setForm
       ...prevData,
       category: category
     }));
+    setShowCategoryError(false); // Clear error when category is selected
   };
   
   const handleSaveNewCategory = () => {
@@ -64,6 +65,7 @@ const ProjectUploadForm = ({ onClose, onSubmit }) => {  const [formData, setForm
         category: newCategory.trim()
       }));
       setShowNewCategory(false);
+      setShowCategoryError(false); // Clear error when category is saved
     }
   };
   
@@ -128,8 +130,14 @@ const ProjectUploadForm = ({ onClose, onSubmit }) => {  const [formData, setForm
   };  const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Validate required fields
-    if (!formData.title || !formData.description || !formData.category) {
+    // Check for category first and show error if missing
+    if (!formData.category) {
+      setShowCategoryError(true);
+      return;
+    }
+    
+    // Validate other required fields
+    if (!formData.title || !formData.description) {
       alert('Please fill in all required fields');
       return;
     }
@@ -215,8 +223,8 @@ const ProjectUploadForm = ({ onClose, onSubmit }) => {  const [formData, setForm
                     value={formData.category} 
                     required 
                   />
-                  {!formData.category && (
-                    <small style={{ color: '#e53e3e', marginTop: '5px', display: 'block' }}>
+                  {showCategoryError && !formData.category && (
+                    <small style={{ color: '#e53e3e', marginTop: '8px', display: 'block', fontSize: '0.875rem' }}>
                       Please select a category
                     </small>
                   )}
@@ -254,7 +262,7 @@ const ProjectUploadForm = ({ onClose, onSubmit }) => {  const [formData, setForm
               )}            </div>
           </div>
             <div className="form-group">
-            <label htmlFor="image">Project Image</label>
+            <label htmlFor="image">Image Upload*</label>
             <div className="image-upload-container">
               <input 
                 type="file" 
@@ -281,6 +289,11 @@ const ProjectUploadForm = ({ onClose, onSubmit }) => {  const [formData, setForm
                   <img src={formData.imagePreview} alt="Preview" />
                 </div>
               )}
+              {!formData.imagePreview && (
+                <div className="image-info">
+                  No image selected. Please choose an image for your project.
+                </div>
+              )}
             </div>
           </div>
           
@@ -295,18 +308,6 @@ const ProjectUploadForm = ({ onClose, onSubmit }) => {  const [formData, setForm
               rows="4"
               required
             ></textarea>
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="date">Date</label>
-            <input 
-              type="text" 
-              id="date" 
-              name="date" 
-              value={formData.date}
-              onChange={handleChange} 
-              placeholder="e.g. May 2025"
-            />
           </div>
           
           <div className="form-group">

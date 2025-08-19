@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FaInstagram, FaFacebook, FaLinkedin, FaHome, FaUser, FaFileAlt, FaImage, FaServer, FaEnvelope, FaSignInAlt, FaSignOutAlt } from 'react-icons/fa';
+import { FaInstagram, FaFacebook, FaLinkedin, FaGithub, FaHome, FaUser, FaFileAlt, FaImage, FaServer, FaEnvelope, FaSignInAlt, FaSignOutAlt } from 'react-icons/fa';
 import { AuthContext } from '../auth/AuthContext';
 import profileImage from '../../assets/images/profile.webp';
 
@@ -48,9 +48,10 @@ const SideBar = () => {
                         justifyContent: 'center'
                     }}>
                         {[
+                            { icon: <FaGithub size={20} />, link: 'https://github.com/PemaRinchen-DarkPulse' },
+                            { icon: <FaLinkedin size={20} />, link: 'https://www.linkedin.com/in/pema-rinchen-305558264/' },
                             { icon: <FaInstagram size={20} />, link: 'https://www.instagram.com/blazepknight/' },
                             { icon: <FaFacebook size={20} />, link: 'https://www.facebook.com/BlazePknight'  },
-                            { icon: <FaLinkedin size={20} />, link: '#' },
                         ].map((social, index) => (
                             <li key={index} className="mx-2">
                                 <a
