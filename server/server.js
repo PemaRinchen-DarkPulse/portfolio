@@ -6,8 +6,15 @@ const path = require('path');
 const fs = require('fs');
 
 // Load environment variables (for local development)
-if (process.env.NODE_ENV !== 'production') {
+// Don't load .env in Vercel production environment
+const isVercel = process.env.VERCEL || process.env.VERCEL_ENV;
+const isProduction = process.env.NODE_ENV === 'production';
+
+if (!isVercel && !isProduction) {
   dotenv.config({ path: path.resolve(__dirname, '.env') });
+  console.log('Loaded .env file for local development');
+} else {
+  console.log('Running in production/Vercel - using environment variables');
 }
 
 // Initialize Express app
@@ -120,15 +127,24 @@ if (missingEnvVars.length > 0) {
   console.error('Available env vars:', Object.keys(process.env).filter(key => 
     key.includes('MONGO') || key.includes('JWT') || key.includes('NODE')
   ));
+  
+  // In production, log the error but don't crash the server immediately
+  // This allows the health check routes to work and show the error
   if (process.env.NODE_ENV === 'production') {
+    console.error(`WARNING: Missing environment variables: ${missingEnvVars.join(', ')}`);
+    console.error('Server will start but database operations may fail');
+  } else {
     throw new Error(`Missing environment variables: ${missingEnvVars.join(', ')}`);
   }
 }
 
 // Connect to MongoDB with better error handling
-if (!process.env.MONGO_URI) {
+// Don't exit process in production, let the server start and handle errors gracefully
+if (!process.env.MONGO_URI && process.env.NODE_ENV !== 'production') {
   console.error('MONGO_URI is missing in environment variables');
   process.exit(1);
+} else if (!process.env.MONGO_URI) {
+  console.error('WARNING: MONGO_URI is missing in production environment');
 }
 
 // Connect to MongoDB with better error handling for Vercel
@@ -229,6 +245,12 @@ const connectDB = async () => {
 
 // Initialize database connection with retry logic
 const initializeDB = async () => {
+  // Skip database initialization if MONGO_URI is not available
+  if (!process.env.MONGO_URI) {
+    console.warn('Skipping database initialization - MONGO_URI not available');
+    return;
+  }
+
   let retries = 3;
   
   while (retries > 0) {
@@ -257,8 +279,10 @@ const initializeDB = async () => {
   }
 };
 
-// Initialize database connection
-initializeDB();
+// Initialize database connection only if not in serverless cold start
+if (!isVercel || mongoose.connection.readyState === 0) {
+  initializeDB();
+}
 
 // Health check route
 app.get('/', (req, res) => {
@@ -414,13 +438,22 @@ app.get('/api/clear-cache', (req, res) => {
   try {
     // Import cache utilities
     const { cache } = require('./middleware/cache');
-    cache.clear();
-    res.json({
-      status: 'success',
-      message: 'Cache cleared successfully',
-      timestamp: new Date().toISOString()
-    });
+    if (cache && typeof cache.clear === 'function') {
+      cache.clear();
+      res.json({
+        status: 'success',
+        message: 'Cache cleared successfully',
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      res.json({
+        status: 'warning',
+        message: 'Cache not available or clear method not found',
+        timestamp: new Date().toISOString()
+      });
+    }
   } catch (error) {
+    console.error('Cache clear error:', error.message);
     res.status(500).json({
       status: 'error',
       message: 'Failed to clear cache',
@@ -455,7 +488,11 @@ try {
       // Ensure database connection before proceeding
       if (mongoose.connection.readyState !== 1) {
         console.log('Database not connected, attempting to reconnect...');
-        await connectDB();
+        if (process.env.MONGO_URI) {
+          await connectDB();
+        } else {
+          throw new Error('MONGO_URI not available');
+        }
       }
       next();
     } catch (err) {
@@ -463,7 +500,8 @@ try {
       res.status(503).json({
         message: 'Database service unavailable',
         error: 'Unable to connect to the database. Please try again later.',
-        suggestion: 'This might be a temporary network issue.'
+        suggestion: 'This might be a temporary network issue.',
+        details: process.env.NODE_ENV === 'development' ? err.message : undefined
       });
     }
   });
@@ -474,6 +512,15 @@ try {
 } catch (err) {
   console.error('Error loading portfolio routes:', err.message);
   console.error('Portfolio route error stack:', err.stack);
+  
+  // Add fallback route for portfolios if loading fails
+  app.get('/api/portfolios', (req, res) => {
+    res.status(503).json({
+      message: 'Portfolio service temporarily unavailable',
+      error: 'Route loading failed',
+      timestamp: new Date().toISOString()
+    });
+  });
 }
 
 try {
@@ -482,6 +529,9 @@ try {
   console.log('Auth routes loaded successfully');
 } catch (err) {
   console.error('Error loading auth routes:', err.message);
+  app.post('/api/auth/login', (req, res) => {
+    res.status(503).json({ message: 'Auth service temporarily unavailable' });
+  });
 }
 
 try {
@@ -490,6 +540,9 @@ try {
   console.log('Project routes loaded successfully');
 } catch (err) {
   console.error('Error loading project routes:', err.message);
+  app.get('/api/projects', (req, res) => {
+    res.status(503).json({ message: 'Project service temporarily unavailable' });
+  });
 }
 
 try {
@@ -499,6 +552,12 @@ try {
   console.log('Contact routes loaded successfully');
 } catch (err) {
   console.error('Error loading contact routes:', err.message);
+  app.post('/api/contact', (req, res) => {
+    res.status(503).json({ message: 'Contact service temporarily unavailable' });
+  });
+  app.post('/api/messages', (req, res) => {
+    res.status(503).json({ message: 'Message service temporarily unavailable' });
+  });
 }
 
 try {
@@ -507,6 +566,9 @@ try {
   console.log('Chat routes loaded successfully');
 } catch (err) {
   console.error('Error loading chat routes:', err.message);
+  app.post('/api/chat', (req, res) => {
+    res.status(503).json({ message: 'Chat service temporarily unavailable' });
+  });
 }
 
 console.log('Route loading complete');
@@ -546,8 +608,12 @@ app.use('*', (req, res) => {
 });
 
 // Start server (only in non-serverless environment)
-if (process.env.NODE_ENV !== 'production') {
+if (require.main === module && process.env.NODE_ENV !== 'production') {
+  // Only start server if this file is run directly and not in production
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+} else if (require.main === module) {
+  // In production, log that we're in serverless mode
+  console.log('Running in serverless mode - not starting HTTP server');
 }
 
 // Export the app for Vercel
