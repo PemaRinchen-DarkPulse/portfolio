@@ -10,6 +10,7 @@ function BubbleChat() {
   const [greetingSent, setGreetingSent] = useState(false); // Track if greeting is sent
   const [isLoading, setIsLoading] = useState(false); // Loading state for API calls
   const chatEndRef = useRef(null); // Reference to scroll to the end of the chat
+  const inputRef = useRef(null); // Ref for the message input box
 
   // Scroll to the bottom whenever a new message is added
   useEffect(() => {
@@ -17,6 +18,13 @@ function BubbleChat() {
       chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [chatHistory]); // Trigger when chat history changes
+
+  // Auto-focus the input field
+  useEffect(() => {
+    if (isOpen && inputRef.current && !isLoading) {
+      inputRef.current.focus();
+    }
+  }, [isOpen, isLoading, chatHistory]); // Re-focus when chat window is opened, loading finishes, or history changes
 
   // Toggle chat window
   const toggleChat = () => {
@@ -136,6 +144,7 @@ function BubbleChat() {
           </div>
           <div className="chat-footer">
             <input
+              ref={inputRef} // Assign ref to the input
               type="text"
               value={userMessage}
               onChange={(e) => setUserMessage(e.target.value)}
@@ -144,7 +153,15 @@ function BubbleChat() {
               disabled={isLoading}
             />
             <button onClick={handleSendMessage} disabled={isLoading || !userMessage.trim()}>
-              {isLoading ? '...' : <FaPaperPlane />}
+              {isLoading ? (
+                <div className="button-loading-indicator">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              ) : (
+                <FaPaperPlane />
+              )}
             </button>
           </div>
         </div>
