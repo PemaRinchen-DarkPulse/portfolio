@@ -15,7 +15,15 @@ export const sendContactMessage = async (contactData) => {
     return response.data;
   } catch (error) {
     console.error('Contact API Error:', error);
-    throw error;
+    // Normalize error message from server if available
+    if (error.response && error.response.data) {
+      const serverMsg = error.response.data.message || error.response.data.error || 'Failed to send message.';
+      throw new Error(serverMsg);
+    }
+    if (error.message) {
+      throw new Error(error.message);
+    }
+    throw new Error('Failed to send message. Please try again.');
   }
 };
 

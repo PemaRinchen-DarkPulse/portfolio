@@ -1,15 +1,36 @@
 const express = require('express');
-const sgMail = require('@sendgrid/mail');
+const nodemailer = require('nodemailer');
 const Contact = require('../models/Contact');
 const router = express.Router();
 
-// Set SendGrid API key
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+// Configure Nodemailer transporter for Brevo (Sendinblue) SMTP
+const brevoHost = process.env.BREVO_SMTP_HOST || 'smtp-relay.brevo.com';
+const brevoPort = parseInt(process.env.BREVO_SMTP_PORT || '587', 10);
+const brevoUser = process.env.BREVO_SMTP_USER;
+const brevoPass = process.env.BREVO_SMTP_PASS;
+
+let transporter;
+try {
+  if (!brevoUser || !brevoPass) {
+    console.warn('Brevo SMTP credentials are not fully set. Please set BREVO_SMTP_USER and BREVO_SMTP_PASS.');
+  }
+
+  transporter = nodemailer.createTransport({
+    host: brevoHost,
+    port: brevoPort,
+    secure: false, // Brevo recommends TLS on 587 with secure=false
+    auth: brevoUser && brevoPass ? { user: brevoUser, pass: brevoPass } : undefined,
+    logger: process.env.BREVO_SMTP_DEBUG === 'true',
+    debug: process.env.BREVO_SMTP_DEBUG === 'true',
+  });
+} catch (e) {
+  console.error('Failed to create Brevo transporter:', e.message);
+}
 
 console.log('Contact route file loaded');
 
 // @route   POST api/messages
-// @desc    Save contact form message to database FIRST, then send email using SendGrid
+// @desc    Save contact form message to database FIRST, then send email using Brevo SMTP
 // @access  Public
 router.post('/', async (req, res) => {
   console.log('POST /api/messages route hit');
@@ -26,14 +47,9 @@ router.post('/', async (req, res) => {
       });
     }
 
-    // Email validation regex
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide a valid email address'
-      });
-    }
+  // Email validation regex (soft validation - don't block sending)
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const isValidEmail = emailRegex.test(email);
 
     // Step 1: Save to database first
     const contactData = new Contact({
@@ -46,14 +62,20 @@ router.post('/', async (req, res) => {
     console.log('Contact saved to database:', savedContact._id);
 
     // Step 2: Prepare and send email using the saved data
-    const emailContent = {
-      to: process.env.TO_EMAIL,
-      from: {
-        email: process.env.FROM_EMAIL,
-        name: process.env.FROM_NAME
-      },
-      subject: `Portfolio Contact Form: Message from ${savedContact.name}`,
-      html: `
+    // Escape user content for safe HTML
+    const escapeHtml = (str = '') => String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+
+    const safeName = escapeHtml(savedContact.name);
+    const safeEmail = escapeHtml(savedContact.email);
+    const safeMessage = escapeHtml(savedContact.message).replace(/\n/g, '<br>');
+
+    const subject = `Portfolio Contact Form: Message from ${safeName}`;
+    const html = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f8f9fa; padding: 20px;">
           <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
             <h2 style="color: #333; border-bottom: 3px solid #007bff; padding-bottom: 15px; margin-bottom: 25px;">
@@ -62,14 +84,14 @@ router.post('/', async (req, res) => {
             
             <div style="background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 5px solid #2196f3;">
               <h3 style="color: #1976d2; margin-top: 0; margin-bottom: 15px;">📋 Contact Details:</h3>
-              <p style="margin: 8px 0;"><strong>👤 Name:</strong> ${savedContact.name}</p>
-              <p style="margin: 8px 0;"><strong>📧 Email:</strong> <a href="mailto:${savedContact.email}" style="color: #1976d2;">${savedContact.email}</a></p>
+              <p style="margin: 8px 0;"><strong>👤 Name:</strong> ${safeName}</p>
+              <p style="margin: 8px 0;"><strong>📧 Email:</strong> <a href="mailto:${safeEmail}" style="color: #1976d2;">${safeEmail}</a></p>
             </div>
             
             <div style="background-color: #f3e5f5; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 5px solid #9c27b0;">
               <h3 style="color: #7b1fa2; margin-top: 0; margin-bottom: 15px;">💬 Message:</h3>
               <div style="background-color: white; padding: 15px; border-radius: 5px; line-height: 1.6; color: #333;">
-                ${savedContact.message.replace(/\n/g, '<br>')}
+                ${safeMessage}
               </div>
             </div>
             
@@ -91,17 +113,34 @@ router.post('/', async (req, res) => {
                 This message was sent from your portfolio website contact form.
               </p>
               <p style="color: #007bff; font-weight: bold; margin: 10px 0 0 0;">
-                Reply directly to this email to respond to ${savedContact.name}
+                Reply directly to this email to respond to ${safeName}
               </p>
             </div>
           </div>
         </div>
-      `,
-      replyTo: savedContact.email // This allows you to reply directly to the sender
+      `;
+
+    const mailOptions = {
+      from: `${process.env.FROM_NAME ? '"' + process.env.FROM_NAME + '" ' : ''}<${process.env.FROM_EMAIL}>`,
+      to: process.env.TO_EMAIL,
+  subject,
+  html,
     };
 
-    // Step 3: Send email using SendGrid
-    await sgMail.send(emailContent);
+    if (isValidEmail) {
+      mailOptions.replyTo = savedContact.email; // Only set replyTo if valid
+    }
+
+    if (process.env.BREVO_BCC_SELF === 'true' && process.env.FROM_EMAIL) {
+      mailOptions.bcc = process.env.FROM_EMAIL;
+    }
+
+    if (!transporter) {
+      throw new Error('Email transporter is not initialized');
+    }
+
+    // Step 3: Send email using Brevo SMTP
+    await transporter.sendMail(mailOptions);
 
     // Step 4: Update database to mark email as sent
     await Contact.findByIdAndUpdate(savedContact._id, {
@@ -118,12 +157,7 @@ router.post('/', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Contact form error:', error);
-    
-    // Handle SendGrid specific errors
-    if (error.response) {
-      console.error('SendGrid Error Response:', error.response.body);
-    }
+  console.error('Contact form error:', error);
 
     // Handle mongoose/database errors
     if (error.name === 'ValidationError') {

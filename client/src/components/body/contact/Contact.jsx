@@ -282,6 +282,11 @@ const Contact = () => {
       if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
         throw new Error('Please fill in all fields');
       }
+      // Basic email format validation (mirror server-side)
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email.trim())) {
+        throw new Error('Please provide a valid email address');
+      }
 
       await sendContactMessage(formData);
       
