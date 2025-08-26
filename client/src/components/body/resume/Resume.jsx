@@ -171,13 +171,13 @@ const Resume = () => {
               <p><strong style={{color: '#ffc107'}}>Mar 2016 – Mar 2022</strong></p>
               <p>The Royal Academy</p>
               <p>Diploma in Bhutan Baccalaureate</p>
-              <p style={{fontSize: '0.9rem', color: '#ccc'}}>Coursework: Computer Architecture, Comparison of Learning Algorithms, Computational Theory</p>
+              <p style={{fontSize: '0.9rem', color: '#ccc'}}>Coursework: Science Stream (Focus on Chemistry,Physic and math), elective in Space and Technology.</p>
             </div>
             <div style={styles.educationEntry}>
               <p><strong style={{color: '#ffc107'}}>Aug 2022 – July 2026</strong></p>
               <p>Symbiosis Institute of Technology</p>
               <p>B.Tech Computer Science and Technology</p>
-              <p style={{fontSize: '0.9rem', color: '#ccc'}}>Coursework: Computer Architecture, Comparison of Learning Algorithms, Computational Theory</p>
+              <p style={{fontSize: '0.9rem', color: '#ccc'}}>Coursework: Data Science, MERN Stack Development, Spring Boot, Agile Methodologies, Machine Learning, Data Structures & Algorithms, Database Management Systems (MySQL)</p>
             </div>
           </div>
 
@@ -190,13 +190,7 @@ const Resume = () => {
                 <li style={{...styles.skillsListItem}}>
                   <span style={{position: 'relative'}}>
                     <span style={{position: 'absolute', left: '-20px', color: '#ffc107', fontWeight: 'bold'}}>▸</span>
-                    C, C++, Java
-                  </span>
-                </li>
-                <li style={{...styles.skillsListItem}}>
-                  <span style={{position: 'relative'}}>
-                    <span style={{position: 'absolute', left: '-20px', color: '#ffc107', fontWeight: 'bold'}}>▸</span>
-                    Python, JavaScript
+                    C, C++, Java, Python, JavaScript
                   </span>
                 </li>
               </ul>
@@ -207,13 +201,7 @@ const Resume = () => {
                 <li style={{...styles.skillsListItem}}>
                   <span style={{position: 'relative'}}>
                     <span style={{position: 'absolute', left: '-20px', color: '#ffc107', fontWeight: 'bold'}}>▸</span>
-                    React.js, Node.js
-                  </span>
-                </li>
-                <li style={{...styles.skillsListItem}}>
-                  <span style={{position: 'relative'}}>
-                    <span style={{position: 'absolute', left: '-20px', color: '#ffc107', fontWeight: 'bold'}}>▸</span>
-                    Express.js, SpringBoot
+                    React.js, Node.js, Express.js , SpringBoot
                   </span>
                 </li>
               </ul>
@@ -235,13 +223,7 @@ const Resume = () => {
                 <li style={{...styles.skillsListItem}}>
                   <span style={{position: 'relative'}}>
                     <span style={{position: 'absolute', left: '-20px', color: '#ffc107', fontWeight: 'bold'}}>▸</span>
-                    Git, GitHub
-                  </span>
-                </li>
-                <li style={{...styles.skillsListItem}}>
-                  <span style={{position: 'relative'}}>
-                    <span style={{position: 'absolute', left: '-20px', color: '#ffc107', fontWeight: 'bold'}}>▸</span>
-                    Vercel, Postman
+                    Git, GitHub, Vercel, Postman
                   </span>
                 </li>
               </ul>
@@ -255,71 +237,49 @@ const Resume = () => {
             <h5 style={styles.sectionTitleRight}>Professional Summary</h5>
             <hr style={styles.sectionDividerRight} />
             <p style={styles.profileText}>
-              Motivated and detail-oriented Computer Science student with hands-on experience in full-stack development and 
-              data science applications. Skilled in building scalable, user-centric platforms using the MERN stack and applying 
-              machine learning models for real-world problem-solving. Developed and tested projects including an 
-              AI-powered telehealth system, an alumni networking platform, and a ride-hailing demand forecasting 
-              model. Strong foundation in programming, algorithms, and system design, with proven ability to translate ideas 
-              into functional solutions. Eager to contribute to dynamic teams and grow through impactful software development 
-              challenges.
+              Motivated and detail-oriented Computer Science student with hands-on experience in full-stack development and
+              Data Science. Skilled in building scalable and user-centric platforms using MERN stack and Java (Spring Boot)
+              and machine learning models. Strong foundation in programming and system design with proven ability to
+              translate ideas into functional solutions. Eager to contribute to dynamic teams and grow through challenges
             </p>
-          </div>
-
-          <div style={styles.sectionGroup}>
-            <h5 style={styles.sectionTitleRight}>Work Experience</h5>
-            <hr style={styles.sectionDividerRight} />
-            <div style={styles.projectEntry}>
-              <h6 style={styles.projectTitle}>Full Stack & Data Science Developer</h6>
-              <p style={styles.projectRole}><em>Self-Initiated Projects | Remote | Jun 2023 – Present</em></p>
-              <ul style={styles.projectDetails}>
-                <li style={styles.projectDetailsItem}>Built AiMediCare, an AI-powered telehealth system tested with 1,000+ patient health records, 500+ prescriptions, and 200+ pharmacy operations, improving efficiency in digital healthcare workflows.</li>
-                <li style={styles.projectDetailsItem}>Designed and tested an Alumni Network platform for The Royal Academy, connecting 500+ alumni with mentorship, collaboration, and event participation features.</li>
-                <li style={styles.projectDetailsItem}>Developed a Ride-Hailing demand forecasting model by analyzing 100,000+ ride requests, achieving 82% prediction accuracy and proposing strategies to cut cancellations by 15%.</li>
-                <li style={styles.projectDetailsItem}>Applied MERN stack, Python (ML), and data visualization libraries to deliver scalable, real-world solutions.</li>
-                <li style={styles.projectDetailsItem}>Collaborated via GitHub for version control, implemented JWT authentication, and deployed prototypes on cloud platforms.</li>
-              </ul>
-            </div>
           </div>
 
           <div style={styles.sectionGroup}>
             <h5 style={styles.sectionTitleRight}>Projects</h5>
             <hr style={styles.sectionDividerRight} />
             <div style={styles.projectEntry}>
-              <h6 style={styles.projectTitle}>AiMediCare – AI-Powered Telehealth System (In Progress)</h6>
-              <p style={styles.projectRole}><em>github/Ai-Medicare</em></p>
+              <h6 style={styles.projectTitle}>Ai Medicare – AI-Powered Telehealth System (In Progress)</h6>
+              <p style={styles.projectRole}><em>GitHub/Ai-Medicare</em></p>
               <ul style={styles.projectDetails}>
-                <li style={styles.projectDetailsItem}>Built a healthcare platform for patients, doctors, and pharmacies, enabling digital healthcare support.</li>
-                <li style={styles.projectDetailsItem}>Tested patient features for 50+ symptoms analysis, appointment scheduling, and storage of 1,000+ health records.</li>
-                <li style={styles.projectDetailsItem}>Verified doctor workflows by digitally managing 500+ prescriptions and reviewing patient history securely.</li>
-                <li style={styles.projectDetailsItem}>Simulated pharmacy operations for 200+ daily prescriptions with automated verification and inventory checks.</li>
-                <li style={styles.projectDetailsItem}>Planned ML integration targeting 85% accuracy in preliminary health recommendations.</li>
-                <li style={styles.projectDetailsItem}><strong>Tools:</strong> MongoDB, Express.js, React.js, Node.js, Python (ML), JWT Authentication, Git/GitHub</li>
+                <li style={styles.projectDetailsItem}>Designing and prototyping a telehealth platform that uses AIin order to conduct remote consultations, real-time symptom analysis, and triage patients.</li>
+                <li style={styles.projectDetailsItem}>Integrated Natural Language Processing (NLP) to interpret patient health queries and present doctor-like initial answers.</li>
+                <li style={styles.projectDetailsItem}>Developed a machine learning risk prediction model(logistic regression and random forest) to determine early indicators of chronic illnesses, and demonstrated increased diagnostic precision by 25 percent in test condition.</li>
+                <li style={styles.projectDetailsItem}>Custom-developed backend services with Express.js web framework with an emphasis on role-based authentication (JWT/OAuth2), encrypted health records, and video consultation.</li>
+                <li style={styles.projectDetailsItem}>Demonstrated at SIT Industry Conclave, where the system was presented to industry experts on the real-world healthcare applications.</li>
+                <li style={styles.projectDetailsItem}><strong>Tools & Technologies:</strong> MongoDB, Express.js, React.js, Node.js, Python (ML), JWT Authentication, Git/GitHub</li>
               </ul>
             </div>
 
             <div style={styles.projectEntry}>
               <h6 style={styles.projectTitle}>Alumni Network – The Royal Academy (In Progress)</h6>
-              <p style={styles.projectRole}><em>github/Alumni-Network</em></p>
+              <p style={styles.projectRole}><em>GitHub/Alumni-Network</em></p>
               <ul style={styles.projectDetails}>
-                <li style={styles.projectDetailsItem}>Developed a platform connecting 500+ alumni for mentorship, collaboration, and events.</li>
-                <li style={styles.projectDetailsItem}>Tested mentorship features enabling 100+ students to connect with alumni for career guidance.</li>
-                <li style={styles.projectDetailsItem}>Collected 200+ teacher tributes showcasing alumni appreciation and engagement.</li>
-                <li style={styles.projectDetailsItem}>Simulated collaboration features allowing alumni to initiate/join 50+ projects across domains.</li>
-                <li style={styles.projectDetailsItem}>Tested event system for alumni to register for 20+ school events annually, improving participation.</li>
-                <li style={styles.projectDetailsItem}><strong>Tools:</strong> MongoDB, Express.js, React.js, Node.js, Python (ML), JWT Authentication, Git/GitHub</li>
+                <li style={styles.projectDetailsItem}>Designed a community-based alumni software to enhance mentorship, professional networking, and event attendance activities between alumni, teachers, and students.</li>
+                <li style={styles.projectDetailsItem}>Integrated a React.js front-end with a responsive design and backend APIs written in Express.js coupled with MongoDB that allowed it to scale for 1000+ users.</li>
+                <li style={styles.projectDetailsItem}>Added a suggestion engine for networking (based on similarities in education and industry).</li>
+                <li style={styles.projectDetailsItem}>To maximize data security and comply with regulations, authentication was deployed using JWT and bcrypt.</li>
+                <li style={styles.projectDetailsItem}><strong>Tools & Technologies:</strong> MongoDB, Express.js, React.js, Node.js, Python (ML), JWT Authentication, Git/GitHub</li>
               </ul>
             </div>
 
             <div style={styles.projectEntry}>
-              <h6 style={styles.projectTitle}>Ride-Hailing – Data Science Project</h6>
-              <p style={styles.projectRole}><em>2025</em></p>
+              <h6 style={styles.projectTitle}>Ride-Hailing – Data Science Project 2025</h6>
               <ul style={styles.projectDetails}>
-                <li style={styles.projectDetailsItem}>Analyzed 100,000+ ride requests to identify demand patterns across time, location, and weather conditions.</li>
-                <li style={styles.projectDetailsItem}>Cleaned and preprocessed dataset by handling 20%+ missing values and reducing noise for accurate predictions.</li>
-                <li style={styles.projectDetailsItem}>Trained machine learning models (Linear Regression, Random Forest) achieving 82% accuracy in demand forecasting.</li>
-                <li style={styles.projectDetailsItem}>Visualized peak hours, cancellation trends, and driver allocation efficiency using Matplotlib & Seaborn.</li>
-                <li style={styles.projectDetailsItem}>Proposed optimization strategy to reduce ride cancellations by 15% through better supply-demand matching.</li>
-                <li style={styles.projectDetailsItem}><strong>Tools:</strong> Python, Pandas, NumPy, Matplotlib, Seaborn, Scikit-learn, Google Colab</li>
+                <li style={styles.projectDetailsItem}>Used ride-hailing datasets to conduct end-to-end data analysis as a way to understand the supply-demand balance, customer retention, and driver efficiency.</li>
+                <li style={styles.projectDetailsItem}>Conducted data preparation, feature engineering, clustering (K-Means), correlation analysis, and predictive modeling (time-series, regression) to forecast demand.</li>
+                <li style={styles.projectDetailsItem}>Developed Power BI dashboards to visualize ride frequency peak demand areas, trip duration, cancellations, and driver earnings.</li>
+                <li style={styles.projectDetailsItem}>Optimized resource allocation plans, leading to a 15–20 percent improvement in demand forecast accuracy compared to baseline.</li>
+                <li style={styles.projectDetailsItem}><strong>Tools & Technologies:</strong> Python, Pandas, NumPy, Matplotlib, Seaborn, Scikit-learn, Google Colab, Power BI</li>
               </ul>
             </div>
           </div>

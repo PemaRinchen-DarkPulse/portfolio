@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import PortfolioUploadForm from './PortfolioUploadForm';
 import { AuthContext } from '../../auth/AuthContext';
 import SharedHero from '../../shared/SharedHero';
-import { portfolioAPI } from '../../../services/api';
+import { portfolioAPI, warmupBackend } from '../../../services/api';
 import LoadingSpinner from '../../shared/LoadingSpinner';
 
 // Function to trim content to approximately three lines
@@ -117,7 +117,13 @@ const Portfolio = () => {
         
       } catch (error) {
         console.error('Error fetching portfolio items:', error);
-        setError('Failed to load portfolio items. Please try again later.');
+        // If backend is cold (503), attempt a soft warmup and show gentle message
+        if (error?.response?.status === 503) {
+          warmupBackend();
+          setError('Service is waking up. Please retry in a few seconds.');
+        } else {
+          setError('Failed to load portfolio items. Please try again later.');
+        }
       } finally {
         setIsLoading(false);
       }
@@ -190,9 +196,14 @@ const Portfolio = () => {
           <div className="error-message">
             <h3>Error Loading Portfolio</h3>
             <p>{error}</p>
-            <button onClick={() => window.location.reload()}>
-              Try Again
-            </button>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button onClick={() => { setError(null); warmupBackend(); setTimeout(() => window.location.reload(), 800); }}>
+                Retry in 1s
+              </button>
+              <button onClick={() => window.location.reload()}>
+                Reload Now
+              </button>
+            </div>
           </div>
         </div>
       </>

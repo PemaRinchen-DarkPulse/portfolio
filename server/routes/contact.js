@@ -1,5 +1,6 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
+const mongoose = require('mongoose');
 const Contact = require('../models/Contact');
 const router = express.Router();
 
@@ -29,6 +30,22 @@ try {
 
 console.log('Contact route file loaded');
 
+// Health check for contact/messages service
+router.get('/health', async (req, res) => {
+  try {
+    const dbState = mongoose.connection.readyState;
+    const states = { 0: 'disconnected', 1: 'connected', 2: 'connecting', 3: 'disconnecting' };
+    return res.json({
+      message: 'Messages service healthy',
+      timestamp: new Date().toISOString(),
+      database: { state: dbState, status: states[dbState] || 'unknown' },
+      emailTransporter: !!transporter
+    });
+  } catch (err) {
+    return res.status(500).json({ message: 'Health check failed', error: err.message });
+  }
+});
+
 // @route   POST api/messages
 // @desc    Save contact form message to database FIRST, then send email using Brevo SMTP
 // @access  Public
@@ -37,6 +54,14 @@ router.post('/', async (req, res) => {
   console.log('Request body:', req.body);
 
   try {
+    // If database isn't ready yet (serverless cold start), signal a retryable condition
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        message: 'Service warming up. Please wait a few seconds and try again.',
+      });
+    }
+
     const { name, email, message } = req.body;
 
     // Validate input
@@ -164,6 +189,14 @@ router.post('/', async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Validation error: ' + Object.values(error.errors).map(e => e.message).join(', ')
+      });
+    }
+
+    // Propagate a retryable status for transient issues
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        message: 'Service temporarily unavailable. Please try again shortly.'
       });
     }
 

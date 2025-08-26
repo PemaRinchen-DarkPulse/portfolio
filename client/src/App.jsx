@@ -6,6 +6,7 @@ import Resume from './components/body/resume/Resume';
 import Projects from './components/body/project/ProjectList';
 import Contact from './components/body/contact/Contact';
 import BubbleChat from './components/body/bubbleChat/BubbleChat';
+import { warmupBackend } from './services/api';
 import './app.css';
 import SideBar from './components/sideBar/SideBar';
 import { useState, useEffect } from 'react';
@@ -100,11 +101,20 @@ function App() {
         v7_startTransition: true,
         v7_relativeSplatPath: true
       }}>
+        {/* Warmup on initial app mount to mitigate serverless cold starts */}
+        <Warmup />
         <Layout />
         <BubbleChat />
       </Router>
     </AuthProvider>
   );
+}
+
+function Warmup() {
+  useEffect(() => {
+    warmupBackend();
+  }, []);
+  return null;
 }
 
 export default App;

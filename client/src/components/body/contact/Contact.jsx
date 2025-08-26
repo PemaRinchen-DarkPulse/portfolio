@@ -10,7 +10,7 @@ import {
   FaGithub,
 } from "react-icons/fa";
 import SharedHero from '../../shared/SharedHero';
-import { sendContactMessage } from '../../../services/api';
+import { sendContactMessage, warmupBackend } from '../../../services/api';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -288,7 +288,7 @@ const Contact = () => {
         throw new Error('Please provide a valid email address');
       }
 
-      await sendContactMessage(formData);
+  await sendContactMessage(formData);
       
       setSubmitStatus({
         type: 'success',
@@ -298,10 +298,26 @@ const Contact = () => {
       // Reset form
       setFormData({ name: '', email: '', message: '' });
     } catch (error) {
-      setSubmitStatus({
-        type: 'error',
-        message: error.message || 'Failed to send message. Please try again.'
-      });
+      let message = error.message || 'Failed to send message. Please try again.';
+      // If service is waking up, suggest a retry and warm up the backend
+      if (/warming up|temporarily unavailable/i.test(message)) {
+        message = 'Service is waking up. Retrying shortly...';
+        warmupBackend();
+        // Auto-retry once after a brief delay
+        setTimeout(async () => {
+          try {
+            await sendContactMessage(formData);
+            setSubmitStatus({ type: 'success', message: 'Message sent successfully!' });
+            setFormData({ name: '', email: '', message: '' });
+          } catch (err2) {
+            setSubmitStatus({ type: 'error', message: err2.message || 'Please try again in a few seconds.' });
+          } finally {
+            setIsSubmitting(false);
+          }
+        }, 1200);
+        return; // early exit; we'll update status in retry
+      }
+      setSubmitStatus({ type: 'error', message });
     } finally {
       setIsSubmitting(false);
     }

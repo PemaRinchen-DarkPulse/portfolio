@@ -1,13 +1,56 @@
 import axiosInstance from '../config/axios.js';
 import API_BASE_URL from '../config/api.js';
 
+// Generic retry helper with exponential backoff
+const retry = async (fn, {
+  retries = 3,
+  baseDelay = 500,
+  factor = 2,
+  shouldRetry = (err) => {
+    const status = err?.response?.status;
+    // Retry on network errors or 5xx/503 (cold start) or timeouts
+    return (!status || status >= 500 || status === 429) || err.code === 'ECONNABORTED';
+  }
+} = {}) => {
+  let attempt = 0;
+  let lastErr;
+  while (attempt <= retries) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      if (attempt === retries || !shouldRetry(err)) throw err;
+      const delay = baseDelay * Math.pow(factor, attempt);
+      await new Promise(r => setTimeout(r, delay));
+      attempt++;
+    }
+  }
+  throw lastErr;
+};
+
+// Lightweight warmup ping for backend cold starts
+export const warmupBackend = async () => {
+  try {
+    // Fire-and-forget health checks to wake functions
+    axiosInstance.get('/api');
+    axiosInstance.get('/api/portfolios/health');
+    axiosInstance.get('/api/messages/health');
+  } catch (_) {
+    // ignore
+  }
+};
+
 // Contact API - using 'messages' endpoint to avoid ad blocker
 export const sendContactMessage = async (contactData) => {
   try {
     console.log('Sending contact message...');
     console.log('Contact data:', contactData);
 
-    const response = await axiosInstance.post('/api/messages', contactData);
+    const response = await retry(() => axiosInstance.post('/api/messages', contactData), {
+      retries: 3,
+      baseDelay: 700,
+      factor: 1.8,
+    });
 
     console.log('Response status:', response.status);
     console.log('Response data:', response.data);
@@ -42,7 +85,11 @@ export const portfolioAPI = {
       if (options.preview) params.append('preview', 'true');
       
       const queryString = params.toString() ? `?${params.toString()}` : '';
-      const response = await axiosInstance.get(`/api/portfolios${queryString}`);
+      const response = await retry(() => axiosInstance.get(`/api/portfolios${queryString}`), {
+        retries: 3,
+        baseDelay: 500,
+        factor: 2,
+      });
       
       console.log('Portfolio API response status:', response.status);
       
@@ -68,7 +115,10 @@ export const portfolioAPI = {
   // Get portfolio item by ID
   getById: async (id) => {
     try {
-      const response = await axiosInstance.get(`/api/portfolios/${id}`);
+      const response = await retry(() => axiosInstance.get(`/api/portfolios/${id}`), {
+        retries: 2,
+        baseDelay: 500,
+      });
       return response.data;
     } catch (error) {
       console.error('Get portfolio item error:', error);
