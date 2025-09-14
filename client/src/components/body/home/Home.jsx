@@ -34,9 +34,9 @@ const Home = () => {
   return (
     <>
       <SEOHelmet 
-        title="Pema Rinchen - Full Stack Developer | React & Web Development Expert"
+        title="Pema Rinchen | Full Stack Developer & React Expert"
         description="Pema Rinchen is a passionate Full Stack Developer specializing in React, JavaScript, and modern web technologies. Experienced in building responsive web applications with elegant solutions to complex problems."
-        keywords="Pema Rinchen, Full Stack Developer, React Developer, Web Developer, Software Engineer, JavaScript, Portfolio, Web Development"
+        keywords="Pema Rinchen, Full Stack Developer, React Developer, Web Developer, Software Engineer, JavaScript, Web Development"
         url="https://www.pemarinchen.dev/"
       />
       <StructuredData />
