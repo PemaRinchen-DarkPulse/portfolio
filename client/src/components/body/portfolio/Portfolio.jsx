@@ -5,6 +5,7 @@ import { AuthContext } from '../../auth/AuthContext';
 import SharedHero from '../../shared/SharedHero';
 import { portfolioAPI, warmupBackend } from '../../../services/api';
 import LoadingSpinner from '../../shared/LoadingSpinner';
+import SEOHelmet from '../../shared/SEOHelmet';
 
 // Function to trim content to approximately three lines
 const getContentPreview = (content, maxLength = 120) => {
@@ -212,6 +213,12 @@ const Portfolio = () => {
 
   return (
     <>
+      <SEOHelmet 
+        title="Portfolio - Pema Rinchen's Creative Works & Web Development Projects"
+        description="Explore Pema Rinchen's portfolio showcasing creative works, web development projects, and artistic expressions. View detailed case studies and project implementations."
+        keywords="Pema Rinchen portfolio, web development projects, creative works, project showcase, development case studies"
+        url="https://www.pemarinchen.dev/portfolio"
+      />
       <SharedHero 
         title="My Creative <span class='highlight'>Portfolio</span>"
         subtitle="Showcasing my artistic expressions and creative works"

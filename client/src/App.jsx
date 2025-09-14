@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import { HiMenu } from 'react-icons/hi';
 import Home from './components/body/home/Home';
 import About from './components/body/about/About';
@@ -96,17 +97,19 @@ function Layout() {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router future={{
-        v7_startTransition: true,
-        v7_relativeSplatPath: true
-      }}>
-        {/* Warmup on initial app mount to mitigate serverless cold starts */}
-        <Warmup />
-        <Layout />
-        <BubbleChat />
-      </Router>
-    </AuthProvider>
+    <HelmetProvider>
+      <AuthProvider>
+        <Router future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true
+        }}>
+          {/* Warmup on initial app mount to mitigate serverless cold starts */}
+          <Warmup />
+          <Layout />
+          <BubbleChat />
+        </Router>
+      </AuthProvider>
+    </HelmetProvider>
   );
 }
 

@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 import SharedHero from '../../shared/SharedHero';
 import { sendContactMessage, warmupBackend } from '../../../services/api';
+import SEOHelmet from '../../shared/SEOHelmet';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -324,6 +325,12 @@ const Contact = () => {
   };
   return (
     <>
+      <SEOHelmet 
+        title="Contact Pema Rinchen - Full Stack Developer | Get In Touch"
+        description="Get in touch with Pema Rinchen for web development projects, collaborations, or job opportunities. Contact via email, phone, or social media. Available for freelance and full-time positions."
+        keywords="Contact Pema Rinchen, hire full stack developer, web development services, freelance developer contact, React developer hire"
+        url="https://www.pemarinchen.dev/contact"
+      />
       <SharedHero 
         title="Get In <span class='highlight'>Touch</span>"
         subtitle="Let's connect and discuss opportunities"

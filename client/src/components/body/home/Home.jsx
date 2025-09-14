@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { FaGithub, FaLinkedin, FaFacebook, FaInstagram, FaEnvelope } from "react-icons/fa";
 import Image from "../../../assets/images/home.jpg";
+import SEOHelmet from "../../shared/SEOHelmet";
+import StructuredData from "../../shared/StructuredData";
 
 const Home = () => {
   const [text, setText] = useState("");
@@ -30,7 +32,15 @@ const Home = () => {
     return () => clearInterval(typeInterval);
   }, [index]);
   return (
-    <div className="container my-5 d-flex flex-column justify-content-center" style={{ minHeight: "80vh" }}>
+    <>
+      <SEOHelmet 
+        title="Pema Rinchen - Full Stack Developer | React & Web Development Expert"
+        description="Pema Rinchen is a passionate Full Stack Developer specializing in React, JavaScript, and modern web technologies. Experienced in building responsive web applications with elegant solutions to complex problems."
+        keywords="Pema Rinchen, Full Stack Developer, React Developer, Web Developer, Software Engineer, JavaScript, Portfolio, Web Development"
+        url="https://www.pemarinchen.dev/"
+      />
+      <StructuredData />
+      <div className="container my-5 d-flex flex-column justify-content-center" style={{ minHeight: "80vh" }}>
       {/* Main section with image and title */}
       <div className="row align-items-center mb-5 profile-main-section">
         <div
@@ -185,7 +195,8 @@ const Home = () => {
           }
         }
       `}</style>
-    </div>
+      </div>
+    </>
   );
 };
 

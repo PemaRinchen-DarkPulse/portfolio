@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaCode, FaLaptopCode, FaServer, FaDatabase, FaMobile, FaArrowRight } from 'react-icons/fa';
 import aboutImage from '../../../assets/images/about.jpg';
+import SEOHelmet from '../../shared/SEOHelmet';
 
 const About = () => {
   // Skills data
@@ -14,6 +15,12 @@ const About = () => {
   ];
   return (
     <>
+      <SEOHelmet 
+        title="About Pema Rinchen - Full Stack Developer Biography & Skills"
+        description="Learn about Pema Rinchen, a passionate Full Stack Developer with expertise in React, Node.js, and modern web technologies. Discover my journey, skills, and approach to creating innovative solutions."
+        keywords="Pema Rinchen about, Full Stack Developer biography, React developer skills, web development expertise, software engineer background"
+        url="https://www.pemarinchen.dev/about"
+      />
       <div className="about-hero">
         <div className="hero-content">
           <h1>About <span className="highlight">Me</span></h1>
