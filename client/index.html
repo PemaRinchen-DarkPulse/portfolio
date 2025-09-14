@@ -17,6 +17,10 @@
     <meta name="revisit-after" content="7 days" />
     <meta name="distribution" content="global" />
     <meta name="rating" content="general" />
+    <meta name="coverage" content="worldwide" />
+    <meta name="target" content="all" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
     <link rel="canonical" href="https://www.pemarinchen.dev/" />
     
     <!-- Open Graph / Facebook -->
@@ -67,6 +71,38 @@
     <!-- Hreflang for International SEO -->
     <link rel="alternate" href="https://www.pemarinchen.dev/" hreflang="en" />
     <link rel="alternate" href="https://www.pemarinchen.dev/" hreflang="x-default" />
+    
+    <!-- Internal Navigation Links for SEO -->
+    <link rel="prefetch" href="/about" />
+    <link rel="prefetch" href="/resume" />
+    <link rel="prefetch" href="/portfolio" />
+    <link rel="prefetch" href="/projects" />
+    <link rel="prefetch" href="/contact" />
+    
+    <!-- Link Relations for Better SEO -->
+    <link rel="author" href="https://www.pemarinchen.dev/about" />
+    <link rel="help" href="https://www.pemarinchen.dev/contact" />
+    <link rel="next" href="https://www.pemarinchen.dev/about" />
+    
+    <!-- Additional Navigation Links for SEO -->
+    <link rel="bookmark" href="https://www.pemarinchen.dev/about" title="About Pema Rinchen" />
+    <link rel="bookmark" href="https://www.pemarinchen.dev/resume" title="Pema Rinchen Resume" />
+    <link rel="bookmark" href="https://www.pemarinchen.dev/portfolio" title="Portfolio Projects" />
+    <link rel="bookmark" href="https://www.pemarinchen.dev/projects" title="Development Projects" />
+    <link rel="bookmark" href="https://www.pemarinchen.dev/contact" title="Contact Pema Rinchen" />
+    
+    <!-- Section Navigation Links -->
+    <link rel="contents" href="https://www.pemarinchen.dev/about" title="About Section" />
+    <link rel="contents" href="https://www.pemarinchen.dev/resume" title="Resume Section" />
+    <link rel="contents" href="https://www.pemarinchen.dev/portfolio" title="Portfolio Section" />
+    <link rel="contents" href="https://www.pemarinchen.dev/projects" title="Projects Section" />
+    <link rel="contents" href="https://www.pemarinchen.dev/contact" title="Contact Section" />
+    
+    <!-- External Link Relations -->
+    <link rel="me" href="https://github.com/PemaRinchen-DarkPulse" />
+    <link rel="me" href="https://www.linkedin.com/in/pema-rinchen-305558264/" />
+    <link rel="me" href="https://www.facebook.com/BlazePknight" />
+    <link rel="me" href="https://www.instagram.com/blazepknight/" />
     
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
@@ -245,6 +281,140 @@
           "position": 6,
           "name": "Contact",
           "item": "https://www.pemarinchen.dev/contact"
+        }
+      ]
+    }
+    </script>
+    
+    <!-- Website Structure Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Pema Rinchen",
+      "url": "https://www.pemarinchen.dev",
+      "description": "Personal website of Pema Rinchen, Full Stack Developer specializing in React and modern web technologies",
+      "author": {
+        "@type": "Person",
+        "name": "Pema Rinchen"
+      },
+      "mainEntity": {
+        "@type": "Person",
+        "name": "Pema Rinchen"
+      },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://www.pemarinchen.dev/?search={search_term_string}",
+        "query-input": "required name=search_term_string"
+      },
+      "hasPart": [
+        {
+          "@type": "WebPage",
+          "name": "About Pema Rinchen",
+          "url": "https://www.pemarinchen.dev/about",
+          "description": "Learn more about Pema Rinchen's background and experience"
+        },
+        {
+          "@type": "WebPage", 
+          "name": "Resume",
+          "url": "https://www.pemarinchen.dev/resume",
+          "description": "Pema Rinchen's professional resume and work experience"
+        },
+        {
+          "@type": "WebPage",
+          "name": "Portfolio",
+          "url": "https://www.pemarinchen.dev/portfolio", 
+          "description": "Showcase of Pema Rinchen's web development projects"
+        },
+        {
+          "@type": "WebPage",
+          "name": "Projects",
+          "url": "https://www.pemarinchen.dev/projects",
+          "description": "Collection of Pema Rinchen's software development projects"
+        },
+        {
+          "@type": "WebPage",
+          "name": "Contact",
+          "url": "https://www.pemarinchen.dev/contact",
+          "description": "Get in touch with Pema Rinchen for collaboration opportunities"
+        }
+      ],
+      "inLanguage": "en-US",
+      "isAccessibleForFree": true,
+      "publisher": {
+        "@type": "Person",
+        "name": "Pema Rinchen"
+      }
+    }
+    </script>
+    
+    <!-- Organization Schema for Professional Identity -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ProfessionalService",
+      "name": "Pema Rinchen - Full Stack Development Services",
+      "description": "Professional web development services specializing in React, JavaScript, and modern web technologies",
+      "provider": {
+        "@type": "Person",
+        "name": "Pema Rinchen",
+        "url": "https://www.pemarinchen.dev"
+      },
+      "areaServed": "Global",
+      "serviceType": ["Web Development", "Full Stack Development", "React Development", "JavaScript Development"],
+      "url": "https://www.pemarinchen.dev",
+      "sameAs": [
+        "https://github.com/PemaRinchen-DarkPulse",
+        "https://www.linkedin.com/in/pema-rinchen-305558264/",
+        "https://www.facebook.com/BlazePknight",
+        "https://www.instagram.com/blazepknight/"
+      ]
+    }
+    </script>
+    
+    <!-- Navigation Schema for Better Crawling -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SiteNavigationElement",
+      "name": "Main Navigation",
+      "about": "Primary navigation for Pema Rinchen's website",
+      "hasPart": [
+        {
+          "@type": "SiteNavigationElement",
+          "name": "Home",
+          "description": "Homepage featuring Pema Rinchen's introduction",
+          "url": "https://www.pemarinchen.dev/"
+        },
+        {
+          "@type": "SiteNavigationElement", 
+          "name": "About",
+          "description": "Learn about Pema Rinchen's background and skills",
+          "url": "https://www.pemarinchen.dev/about"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "name": "Resume", 
+          "description": "Professional resume and work experience",
+          "url": "https://www.pemarinchen.dev/resume"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "name": "Portfolio",
+          "description": "Showcase of web development projects",
+          "url": "https://www.pemarinchen.dev/portfolio"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "name": "Projects",
+          "description": "Collection of software development projects",
+          "url": "https://www.pemarinchen.dev/projects"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "name": "Contact",
+          "description": "Get in touch for collaboration opportunities",
+          "url": "https://www.pemarinchen.dev/contact"
         }
       ]
     }
