@@ -20,18 +20,18 @@ if (!isVercel && !isProduction) {
 // Initialize Express app
 const app = express();
 
+// Helper function to get allowed origins from environment variables
+const getAllowedOrigins = () => {
+  const localOrigins = process.env.LOCAL_ORIGINS ? process.env.LOCAL_ORIGINS.split(',').map(origin => origin.trim()) : [];
+  const productionOrigins = process.env.PRODUCTION_ORIGINS ? process.env.PRODUCTION_ORIGINS.split(',').map(origin => origin.trim()) : [];
+  
+  // Combine both local and production origins
+  return [...localOrigins, ...productionOrigins];
+};
+
 // Basic CORS configuration for Vercel
 const corsOptions = {
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    'https://pemarinchen.vercel.app', // Add your deployed frontend URL
-    'https://portfoliofrontend-six.vercel.app',
-    'https://portfolio-frontend-six.vercel.app',
-    'https://portfolio-pemarinchentrend.vercel.app',
-    'https://portfolio-git-main-pemarinchen-darkpulse.vercel.app',
-    'https://portfolio-pemarinchen-darkpulses-projects.vercel.app'
-  ],
+  origin: getAllowedOrigins(),
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: [
@@ -71,16 +71,7 @@ app.use(cors(corsOptions));
 // Additional CORS headers as fallback
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  const allowedOrigins = [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    'https://pemarinchen.vercel.app',
-    'https://portfoliofrontend-six.vercel.app',
-    'https://portfolio-frontend-six.vercel.app',
-    'https://portfolio-pemarinchentrend.vercel.app',
-    'https://portfolio-git-main-pemarinchen-darkpulse.vercel.app',
-    'https://portfolio-pemarinchen-darkpulses-projects.vercel.app'
-  ];
+  const allowedOrigins = getAllowedOrigins();
   
   if (allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
