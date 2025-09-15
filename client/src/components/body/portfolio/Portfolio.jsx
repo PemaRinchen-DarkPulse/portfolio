@@ -181,7 +181,6 @@ const Portfolio = () => {
       setPortfolioItems(prevItems => [itemWithPreview, ...prevItems]);
       setShowUploadForm(false);
     } catch (error) {
-      console.error('Error adding portfolio item:', error);
       setError('Failed to add portfolio item. Please try again.');
     }
   };

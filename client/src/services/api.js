@@ -43,21 +43,14 @@ export const warmupBackend = async () => {
 // Contact API - using 'messages' endpoint to avoid ad blocker
 export const sendContactMessage = async (contactData) => {
   try {
-    console.log('Sending contact message...');
-    console.log('Contact data:', contactData);
-
     const response = await retry(() => axiosInstance.post('/api/messages', contactData), {
       retries: 3,
       baseDelay: 700,
       factor: 1.8,
     });
 
-    console.log('Response status:', response.status);
-    console.log('Response data:', response.data);
-
     return response.data;
   } catch (error) {
-    console.error('Contact API Error:', error);
     // Normalize error message from server if available
     if (error.response && error.response.data) {
       const serverMsg = error.response.data.message || error.response.data.error || 'Failed to send message.';
