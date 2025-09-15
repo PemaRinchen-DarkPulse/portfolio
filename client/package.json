@@ -10,9 +10,10 @@
     "dev": "vite",
     "build": "vite build --mode production",
     "build:prod": "cross-env DISABLE_ESLINT_PLUGIN=true vite build",
-    "vercel-build": "vite build",
+    "vercel-build": "npm run build:prod",
     "lint": "eslint . --max-warnings=100",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "serve": "vite preview --port 3000"
   },
   "dependencies": {
     "axios": "^1.9.0",
@@ -31,6 +32,7 @@
     "@types/react": "^18.3.10",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.2",
+    "cross-env": "^7.0.3",
     "eslint": "^9.11.1",
     "eslint-plugin-react": "^7.37.0",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",

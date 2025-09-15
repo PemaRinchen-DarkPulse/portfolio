@@ -10,9 +10,16 @@ export default defineConfig({
     sourcemap: false,
     minify: 'esbuild',
     rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          utils: ['axios', 'jwt-decode']
+        }
+      },
       onwarn: (warning, warn) => {
         // Suppress certain warnings
         if (warning.code === 'UNUSED_EXTERNAL_IMPORT') return
+        if (warning.code === 'MODULE_LEVEL_DIRECTIVE') return
         warn(warning)
       }
     }
@@ -21,6 +28,7 @@ export default defineConfig({
     logOverride: { 'this-is-undefined-in-esm': 'silent' }
   },
   server: {
+    port: 3000,
     proxy: {
       '/api': {
         target: 'http://localhost:5000',
