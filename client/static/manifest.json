@@ -1,0 +1,29 @@
+{
+  "name": "Pema Rinchen - Full Stack Developer",
+  "short_name": "Pema Rinchen",
+  "description": "Personal website of Pema Rinchen, Full Stack Developer specializing in React and modern web technologies",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f4f9",
+  "theme_color": "#4E5B79",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "categories": ["developer", "portfolio", "professional"],
+  "lang": "en",
+  "dir": "ltr",
+  "scope": "/",
+  "id": "pema-rinchen-portfolio"
+}
