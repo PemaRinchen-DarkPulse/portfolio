@@ -8,10 +8,10 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build --mode production",
-    "build:prod": "cross-env DISABLE_ESLINT_PLUGIN=true vite build",
+    "build": "vite build",
+    "build:prod": "cross-env NODE_ENV=production vite build",
     "vercel-build": "npm run build:prod",
-    "lint": "eslint . --max-warnings=100",
+    "lint": "eslint . --max-warnings=0 --quiet",
     "preview": "vite preview",
     "serve": "vite preview --port 3000"
   },

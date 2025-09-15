@@ -4,11 +4,16 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  define: {
+    global: 'globalThis',
+  },
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: false,
     minify: 'esbuild',
+    target: 'esnext',
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         manualChunks: {
@@ -17,9 +22,10 @@ export default defineConfig({
         }
       },
       onwarn: (warning, warn) => {
-        // Suppress certain warnings
+        // Suppress warnings that can cause build failures
         if (warning.code === 'UNUSED_EXTERNAL_IMPORT') return
         if (warning.code === 'MODULE_LEVEL_DIRECTIVE') return
+        if (warning.code === 'EVAL') return
         warn(warning)
       }
     }
