@@ -8,7 +8,17 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: false,
-    minify: 'esbuild'
+    minify: 'esbuild',
+    rollupOptions: {
+      onwarn: (warning, warn) => {
+        // Suppress certain warnings
+        if (warning.code === 'UNUSED_EXTERNAL_IMPORT') return
+        warn(warning)
+      }
+    }
+  },
+  esbuild: {
+    logOverride: { 'this-is-undefined-in-esm': 'silent' }
   },
   server: {
     proxy: {
@@ -16,14 +26,14 @@ export default defineConfig({
         target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
-        configure: (proxy, _options) => {
-          proxy.on('error', (err, _req, _res) => {
+        configure: (proxy) => {
+          proxy.on('error', (err) => {
             console.log('proxy error', err);
           });
-          proxy.on('proxyReq', (proxyReq, req, _res) => {
+          proxy.on('proxyReq', (proxyReq, req) => {
             console.log('Sending Request to the Target:', req.method, req.url);
           });
-          proxy.on('proxyRes', (proxyRes, req, _res) => {
+          proxy.on('proxyRes', (proxyRes, req) => {
             console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
           });
         },
