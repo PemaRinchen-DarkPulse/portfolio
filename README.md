@@ -5,7 +5,8 @@ A full-stack personal portfolio website built by **Pema Rinchen** showcasing tec
 ![Portfolio Preview](client/src/assets/images/home.jpg)
 
 ## Table of Contents
-
+   
+   
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
